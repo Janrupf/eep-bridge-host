@@ -1,4 +1,4 @@
-import 'package:eep_bridge_host/components/multi_animated_cross_fade.dart';
+import 'package:eep_bridge_host/components/animated_multi_switcher.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -9,8 +9,8 @@ class WaitingView extends StatelessWidget {
           fit: StackFit.expand,
           children: [
             FittedBox(
-                child: MultiAnimatedCrossFade(
-                  changeDuration: Duration(seconds: 1),
+                child: AnimatedMultiSwitcher(
+                  transitionDuration: Duration(seconds: 1),
                   displayDuration: Duration(seconds: 30),
                   children: [
                     Image.asset("assets/dioramas/01.png", key: ValueKey(1),),
