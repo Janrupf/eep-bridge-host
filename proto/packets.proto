@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package net.janrupf.eep.network.protocol;
+
+import "definitions.proto";
+
+/// Initial handshake message, this is the first packet sent by the client.
+message Handshake {
+  /// Version of the client, purely informational.
+  Version client_version = 1;
+
+  /// Identifier of the client, purely informational.
+  string client_identifier = 2;
+
+  /// Version of the protocol used by the client, this has to be supported by the server.
+  Version protocol_version = 3;
+
+  /// The current project the host should load or create for this client.
+  string project_identifier = 4;
+}
+
+/// Message sent by the server if the handshake succeeded.
+message HandshakeSuccessful {
+  /// Whether the client should unpause the simulation
+  bool unpause = 1;
+}
+
+/// Message sent by the server if the handshake failed.
+message HandshakeFailure {
+  /// The reason why the handshake failed.
+  string reason = 1;
+}
+
+/// Response to the handshake by the server.
+message HandshakeResponse {
+  oneof result {
+    HandshakeSuccessful success = 1;
+    HandshakeFailure failure = 2;
+  }
+}
+
+/// Client to server Heartbeat
+message Heartbeat {}
