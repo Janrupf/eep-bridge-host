@@ -1,0 +1,30 @@
+# Build on all commits
+on: push
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Setup flutter
+        uses: subosito/flutter-action@v1
+        with:
+          channel: dev
+      - name: Enable desktop support
+        run: flutter config --enable-windows-desktop
+      - name: Install packages
+        run: flutter pub get
+      - name: Build application
+        run: flutter build windows
+      - name: Copy DLLs to dist
+        run: |
+          copy C:\Windows\System32\msvcp140.dll build\windows\runner\release\msvcp140.dll
+          copy C:\Windows\System32\vcruntime140.dll build\windows\runner\release\vcruntime140.dll
+          copy C:\Windows\System32\vcruntime140_1.dll build\windows\runner\release\vcruntime140_1.dll
+      - name: Upload build
+        uses: actions/upload-artifact@v2
+        with:
+          name: eep-bridge-host-windows
+          path: build/windows/runner/release
