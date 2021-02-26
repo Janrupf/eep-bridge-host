@@ -58,8 +58,10 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/dioramas/01.png
-    - assets/dioramas/02.png
+    - assets/dioramas/Diorama_01.png
+    - assets/dioramas/Diorama_02.png
+    - assets/dioramas/Diorama_03.png
+    - assets/dioramas/Diorama_04.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:
@@ -91,3 +93,47 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+  fonts:
+    - family: Roboto
+      fonts:
+          # Roboto black, 900
+        - asset: assets/fonts/Roboto/black/Roboto-Black.ttf
+          weight: 900
+        - asset: assets/fonts/Roboto/black/Roboto-BlackItalic.ttf
+          weight: 900
+          style: italic
+
+          # Roboto bold, 700
+        - asset: assets/fonts/Roboto/bold/Roboto-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Roboto/bold/Roboto-BoldItalic.ttf
+          weight: 700
+          style: italic
+
+          # Roboto medium, 500
+        - asset: assets/fonts/Roboto/medium/Roboto-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Roboto/medium/Roboto-MediumItalic.ttf
+          weight: 500
+          style: italic
+
+          # Roboto regular, 400
+        - asset: assets/fonts/Roboto/regular/Roboto-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Roboto/regular/Roboto-Italic.ttf
+          weight: 400
+          style: italic
+
+        # Roboto light, 300
+        - asset: assets/fonts/Roboto/light/Roboto-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Roboto/light/Roboto-LightItalic.ttf
+          weight: 300
+          style: italic
+
+        # Roboto thin, 100
+        - asset: assets/fonts/Roboto/thin/Roboto-Thin.ttf
+          weight: 100
+        - asset: assets/fonts/Roboto/thin/Roboto-ThinItalic.ttf
+          weight: 100
+          style: italic

@@ -1,50 +1,32 @@
-import 'dart:async';
-
-import 'package:eep_bridge_host/components/create_project_dialog.dart';
-import 'package:eep_bridge_host/project/controller.dart';
-import 'package:eep_bridge_host/util/ui_messenger.dart';
-import 'package:eep_bridge_host/views/waiting_view.dart';
 import 'package:flutter/material.dart';
 
-/// Overview for each project
 class MainView extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _MainViewState();
 }
 
-class _MainViewState extends State<MainView> {
-  late final StreamSubscription<UIMessageEvent<dynamic, dynamic>> _subscription;
-
-  bool _isWaiting = true;
+class _MainViewState extends State<MainView>
+    with SingleTickerProviderStateMixin {
+  final List<Tab> _tabs = [];
+  late TabController _controller;
 
   @override
   void initState() {
     super.initState();
-    _subscription = UIMessenger.eventStream.listen(_onUIEvent);
+    _controller = TabController(length: _tabs.length, vsync: this);
   }
 
   @override
   void dispose() {
-    _subscription.cancel();
+    _controller.dispose();
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) {
-    if (_isWaiting) {
-      return WaitingView();
-    } else {
-      return Scaffold(body: Text("ABC!"));
-    }
-  }
-
-  void _onUIEvent(UIMessageEvent<dynamic, dynamic> event) {
-    if (event.payload is CreateProjectRequest) {
-      showDialog(
-          barrierDismissible: false,
-          context: context,
-          builder: (context) => CreateProjectDialog(
-              event as UIMessageEvent<CreateProjectRequest, String?>));
-    }
-  }
+  Widget build(BuildContext context) => Scaffold(
+        body: TabBarView(
+          controller: _controller,
+          children: [],
+        ),
+      );
 }

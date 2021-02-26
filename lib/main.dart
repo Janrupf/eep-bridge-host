@@ -1,7 +1,7 @@
 import 'package:eep_bridge_host/network/bridge_server.dart';
 import 'package:eep_bridge_host/project/controller.dart';
 import 'package:eep_bridge_host/util/application_theme.dart';
-import 'package:eep_bridge_host/views/main_view.dart';
+import 'package:eep_bridge_host/views/viewport_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -33,10 +33,12 @@ class EEPBridgeHost extends StatelessWidget {
       builder: (context, theme, child) => MaterialApp(
             debugShowCheckedModeBanner: false,
             initialRoute: "/",
-            routes: {"/": (context) => MainView()},
+            routes: {"/": (context) => ViewportWrapper()},
             title: "EEPBridgeHost",
-            theme: ThemeData.light(),
-            darkTheme: ThemeData.dark(),
+            theme: ApplicationTheme.light(),
+            darkTheme: ApplicationTheme.dark(),
             themeMode: theme.currentTheme(),
           ));
+
+
 }
