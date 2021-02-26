@@ -24,3 +24,8 @@ class UnknownPacketException extends NetworkException {
 class MalformedPacketException extends NetworkException {
   MalformedPacketException(String message) : super(message);
 }
+
+/// Exception thrown when the first packet is not a handshake.
+class MissingHandshakeException extends NetworkException {
+  MissingHandshakeException(String message) : super(message);
+}

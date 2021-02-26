@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package net.janrupf.eep.project;
+
+/// Project structure
+message ProjectMeta {
+  /// The name of the project
+  string name = 1;
+}

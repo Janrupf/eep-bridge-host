@@ -1,4 +1,5 @@
 import 'package:eep_bridge_host/network/bridge_server.dart';
+import 'package:eep_bridge_host/project/controller.dart';
 import 'package:eep_bridge_host/util/application_theme.dart';
 import 'package:eep_bridge_host/views/main_view.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +10,19 @@ void main() {
     ChangeNotifierProvider(
       create: (context) => ApplicationTheme(),
     ),
-    Provider(create: (context) => BridgeServer()),
+    Provider<BridgeServer>.value(
+      value: BridgeServer(),
+    ),
+    ProxyProvider<BridgeServer, ProjectController>(
+        lazy: false,
+        update: (context, server, prev) {
+          if (server.hasListener) {
+            // Hot reloads sometimes calls this multiple times...
+            return prev!;
+          }
+
+          return ProjectController(server.stream);
+        }),
   ], child: EEPBridgeHost()));
 }
 

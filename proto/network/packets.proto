@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package net.janrupf.eep.network.protocol;
 
-import "definitions.proto";
+import "network/definitions.proto";
 
 /// Initial handshake message, this is the first packet sent by the client.
 message Handshake {

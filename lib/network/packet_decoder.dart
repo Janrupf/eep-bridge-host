@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:eep_bridge_host/network/exception.dart';
-import 'package:eep_bridge_host/network/protocol/packets.pb.dart';
+import 'package:eep_bridge_host/protogen/network/packets.pb.dart';
 import 'package:protobuf/protobuf.dart';
 
 enum _ReadState { nameLength, name, packetLength, packet }
@@ -25,6 +25,10 @@ class PacketDecoder extends StreamTransformerBase<Uint8List, GeneratedMessage> {
   List<int> _buffer = [];
 
   String? _name = "";
+
+  final Completer<Handshake> _handshakedCompleter = Completer<Handshake>();
+
+  Future<Handshake> get handshaked => _handshakedCompleter.future;
 
   // ignore: close_sinks
   StreamController<GeneratedMessage> _controller = StreamController();
@@ -102,7 +106,7 @@ class PacketDecoder extends StreamTransformerBase<Uint8List, GeneratedMessage> {
                   "An unknown packet name has been received", _name!));
             } else {
               // Decode the packet by reading the remaining data
-              _controller.add(decoder(_readBuffer(_remaining)));
+              _emitPacket(_name!, decoder(_readBuffer(_remaining)));
             }
 
             _state = _ReadState.nameLength;
@@ -112,6 +116,20 @@ class PacketDecoder extends StreamTransformerBase<Uint8List, GeneratedMessage> {
             break;
           }
       }
+    }
+  }
+
+  void _emitPacket(String packetName, GeneratedMessage message) {
+    if (!_handshakedCompleter.isCompleted) {
+      if (!(message is Handshake)) {
+        _handshakedCompleter.completeError(
+            MissingHandshakeException("Expected first message to be Handshake, "
+                "but got $packetName instead"));
+      } else {
+        _handshakedCompleter.complete(message);
+      }
+    } else {
+      _controller.add(message);
     }
   }
 }

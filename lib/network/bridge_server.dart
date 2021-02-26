@@ -1,8 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:eep_bridge_host/logging/logger.dart';
 import 'package:eep_bridge_host/network/bridge_client.dart';
+import 'package:eep_bridge_host/network/exception.dart';
 import 'package:eep_bridge_host/network/packet_decoder.dart';
+import 'package:eep_bridge_host/protogen/network/packets.pb.dart';
+import 'package:protobuf/protobuf.dart';
 
 import 'event/server_events.dart';
 
@@ -31,10 +35,25 @@ class BridgeServer {
 
   /// Called by the socket when a client connects.
   void _onClient(Socket socket) async {
-    final packetStream = socket.transform(PacketDecoder());
+    final decoder = PacketDecoder();
+    final packetStream = socket.transform(decoder);
+    decoder.handshaked.then(
+        (handshake) => _handshakeSucceeded(handshake, packetStream, socket),
+        onError: (error) => _handshakeFailed(error, socket));
+  }
 
-    _eventStreamController
-        .add(ClientConnectedEvent(BridgeClient(packetStream)));
+  /// Called when a handshake succeeded
+  void _handshakeSucceeded(Handshake handshake,
+      Stream<GeneratedMessage> packetStream, Socket socket) {
+    Logger.debug("Handshake received: $handshake");
+    _eventStreamController.add(
+        ClientConnectedEvent(BridgeClient(packetStream, socket), handshake));
+  }
+
+  /// Called when handshaking a client fails.
+  void _handshakeFailed(NetworkException error, Socket socket) {
+    Logger.warn("Handshake failed", error);
+    socket.close();
   }
 
   /// Schedules the server to close.
@@ -45,6 +64,8 @@ class BridgeServer {
       _eventStreamController.close();
     }
   }
+
+  bool get hasListener => _eventStreamController.hasListener;
 
   /// Retrieves the stream of server events.
   Stream<ServerEvent> get stream => _eventStreamController.stream;

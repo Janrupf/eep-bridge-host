@@ -1,8 +1,10 @@
-import 'package:eep_bridge_host/network/bridge_server.dart';
-import 'package:eep_bridge_host/views/view_base.dart';
+import 'dart:async';
+
+import 'package:eep_bridge_host/components/create_project_dialog.dart';
+import 'package:eep_bridge_host/project/controller.dart';
+import 'package:eep_bridge_host/util/ui_messenger.dart';
 import 'package:eep_bridge_host/views/waiting_view.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 /// Overview for each project
 class MainView extends StatefulWidget {
@@ -11,16 +13,38 @@ class MainView extends StatefulWidget {
 }
 
 class _MainViewState extends State<MainView> {
-  @override
-  Widget build(BuildContext context) => Consumer<BridgeServer>(
-      builder: (context, server, child) => StreamBuilder(
-            stream: server.stream,
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return WaitingView();
-              }
+  late final StreamSubscription<UIMessageEvent<dynamic, dynamic>> _subscription;
 
-              return FullScreenView(child: Text("ACB!"));
-            },
-          ));
+  bool _isWaiting = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _subscription = UIMessenger.eventStream.listen(_onUIEvent);
+  }
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isWaiting) {
+      return WaitingView();
+    } else {
+      return Scaffold(body: Text("ABC!"));
+    }
+  }
+
+  void _onUIEvent(UIMessageEvent<dynamic, dynamic> event) {
+    if (event.payload is CreateProjectRequest) {
+      showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) => CreateProjectDialog(
+              event as UIMessageEvent<CreateProjectRequest, String?>));
+    }
+  }
 }
