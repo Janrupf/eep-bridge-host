@@ -20,10 +20,10 @@ class _WaitingViewState extends State<WaitingView>
   void initState() {
     super.initState();
     _controller =
-        AnimationController(duration: Duration(seconds: 1), vsync: this);
+        AnimationController(duration: Duration(milliseconds: 500), vsync: this);
 
     _offsetAnimation = Tween<Offset>(begin: Offset(-1, 0), end: Offset(0, 0))
-        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut))
+        .animate(CurvedAnimation(parent: _controller, curve: Curves.decelerate))
           ..addListener(() {
             setState(() {});
           });
