@@ -3,11 +3,40 @@ import 'dart:ui';
 import 'package:eep_bridge_host/components/animated_multi_switcher.dart';
 import 'package:eep_bridge_host/components/sidebar.dart';
 import 'package:eep_bridge_host/logging/logger.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class WaitingView extends StatelessWidget {
+class WaitingView extends StatefulWidget {
+  @override
+  _WaitingViewState createState() => _WaitingViewState();
+}
+
+class _WaitingViewState extends State<WaitingView>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<Offset> _offsetAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller =
+        AnimationController(duration: Duration(seconds: 1), vsync: this);
+
+    _offsetAnimation = Tween<Offset>(begin: Offset(-1, 0), end: Offset(0, 0))
+        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut))
+          ..addListener(() {
+            setState(() {});
+          });
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
         body: Stack(
@@ -35,31 +64,36 @@ class WaitingView extends StatelessWidget {
                 fit: BoxFit.cover),
             Row(
               children: [
-                ClipRect(
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                    child: Sidebar(opacity: 0.7, children: [
-                      SidebarSection(text: Intl.message("MAIN MENU")),
-                      SidebarEntry(
-                        icon: Icons.help_outline,
-                        text: "Help",
-                        onTap: () {
-                          Logger.warn("Unimplemented: open help", null,
-                              StackTrace.current);
-                        },
+                SlideTransition(
+                  position: _offsetAnimation,
+                  child: ClipRect(
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                      child: RepaintBoundary(
+                        child: Sidebar(opacity: 0.7, children: [
+                          SidebarSection(text: Intl.message("MAIN MENU")),
+                          SidebarEntry(
+                            icon: Icons.help_outline,
+                            text: "Help",
+                            onTap: () {
+                              Logger.warn("Unimplemented: open help", null,
+                                  StackTrace.current);
+                            },
+                          ),
+                          SidebarEntry(
+                            icon: Icons.open_in_browser,
+                            text: "Open",
+                            onTap: () {
+                              Logger.warn("Unimplemented: open existing", null,
+                                  StackTrace.current);
+                            },
+                          ),
+                          Spacer(),
+                          SidebarSection(text: Intl.message("RECENT")),
+                          Spacer(),
+                        ]),
                       ),
-                      SidebarEntry(
-                        icon: Icons.open_in_browser,
-                        text: "Open",
-                        onTap: () {
-                          Logger.warn("Unimplemented: open existing", null,
-                              StackTrace.current);
-                        },
-                      ),
-                      Spacer(),
-                      SidebarSection(text: Intl.message("RECENT")),
-                      Spacer(),
-                    ]),
+                    ),
                   ),
                 ),
                 Expanded(
