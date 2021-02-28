@@ -1,12 +1,8 @@
 import 'dart:ui';
 
 import 'package:eep_bridge_host/components/animated_multi_switcher.dart';
-import 'package:eep_bridge_host/components/dialogs/base_dialog.dart';
-import 'package:eep_bridge_host/components/dialogs/create_project_dialog.dart';
 import 'package:eep_bridge_host/components/sidebar.dart';
 import 'package:eep_bridge_host/logging/logger.dart';
-import 'package:eep_bridge_host/project/controller.dart';
-import 'package:eep_bridge_host/util/ui_messenger.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -43,15 +39,6 @@ class _MainMenuState extends State<MainMenu>
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        floatingActionButton: FloatingActionButton(
-          child: Text("+"),
-          onPressed: () {
-            UIMessageEvent<CreateProjectRequest, String?> event =
-                UIMessageEvent(CreateProjectRequest("test-project"), -1);
-            showBaseDialog(
-                context: context, dialog: CreateProjectDialog(event));
-          },
-        ),
         body: Stack(
           fit: StackFit.expand,
           children: [

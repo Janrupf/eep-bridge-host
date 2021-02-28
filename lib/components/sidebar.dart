@@ -38,9 +38,14 @@ class SidebarEntry extends StatefulWidget {
   final IconData icon;
   final String text;
   final GestureTapCallback onTap;
+  final bool active;
 
   const SidebarEntry(
-      {Key? key, required this.icon, required this.text, required this.onTap})
+      {Key? key,
+      required this.icon,
+      required this.text,
+      required this.onTap,
+      this.active = false})
       : super(key: key);
 
   @override
@@ -68,13 +73,16 @@ class _SidebarEntryState extends State<SidebarEntry> {
             widget.text,
             style: Theme.of(context).textTheme.headline3?.copyWith(
                 color: _color(context),
-                fontWeight: _hovered ? FontWeight.w400 : FontWeight.w300),
+                fontWeight: _hovered || widget.active
+                    ? FontWeight.w400
+                    : FontWeight.w300),
           ),
         ),
       ),
     );
   }
 
-  Color _color(BuildContext context) =>
-      _hovered ? Theme.of(context).highlightColor : Theme.of(context).hintColor;
+  Color _color(BuildContext context) => _hovered || widget.active
+      ? Theme.of(context).highlightColor
+      : Theme.of(context).hintColor;
 }

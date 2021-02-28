@@ -34,6 +34,11 @@ class ApplicationTheme with ChangeNotifier {
                 color: data.hintColor,
                 fontSize: 20,
                 fontWeight: FontWeight.w300),
+            headline1: _textStyle(data.textTheme.headline1).copyWith(
+              fontSize: 40,
+              fontWeight: FontWeight.w400,
+              color: data.highlightColor
+            ),
             headline2: _textStyle(data.textTheme.headline2).copyWith(
                 fontSize: 30,
                 fontWeight: FontWeight.w700,
