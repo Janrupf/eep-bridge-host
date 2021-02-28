@@ -1,3 +1,4 @@
+import 'package:eep_bridge_host/components/auto_unfocus.dart';
 import 'package:eep_bridge_host/network/bridge_server.dart';
 import 'package:eep_bridge_host/project/controller.dart';
 import 'package:eep_bridge_host/util/application_theme.dart';
@@ -30,15 +31,15 @@ void main() {
 class EEPBridgeHost extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Consumer<ApplicationTheme>(
-      builder: (context, theme, child) => MaterialApp(
-            debugShowCheckedModeBanner: false,
-            initialRoute: "/",
-            routes: {"/": (context) => ViewportWrapper()},
-            title: "EEPBridgeHost",
-            theme: ApplicationTheme.light(),
-            darkTheme: ApplicationTheme.dark(),
-            themeMode: theme.currentTheme(),
+      builder: (context, theme, child) => AutoUnfocus(
+            child: MaterialApp(
+              debugShowCheckedModeBanner: false,
+              initialRoute: "/",
+              routes: {"/": (context) => ViewportWrapper()},
+              title: "EEPBridgeHost",
+              theme: ApplicationTheme.light(),
+              darkTheme: ApplicationTheme.dark(),
+              themeMode: theme.currentTheme(),
+            ),
           ));
-
-
 }

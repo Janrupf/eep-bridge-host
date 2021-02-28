@@ -1,8 +1,11 @@
 import 'dart:ui';
 
 import 'package:eep_bridge_host/components/animated_multi_switcher.dart';
+import 'package:eep_bridge_host/components/create_project_dialog.dart';
 import 'package:eep_bridge_host/components/sidebar.dart';
 import 'package:eep_bridge_host/logging/logger.dart';
+import 'package:eep_bridge_host/project/controller.dart';
+import 'package:eep_bridge_host/util/ui_messenger.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -39,6 +42,28 @@ class _WaitingViewState extends State<WaitingView>
 
   @override
   Widget build(BuildContext context) => Scaffold(
+        floatingActionButton: FloatingActionButton(
+          child: Text("+"),
+          onPressed: () {
+            UIMessageEvent<CreateProjectRequest, String?> event =
+                UIMessageEvent(CreateProjectRequest("test-project"), -1);
+            showGeneralDialog(
+                barrierColor: Color(0x0A000000),
+                context: context,
+                pageBuilder: (context, animation1, animation2) =>
+                    CreateProjectDialog(event),
+                transitionBuilder: (context, animation1, animation2, child) =>
+                    BackdropFilter(
+                      filter: ImageFilter.blur(
+                          sigmaX: 10 * animation1.value,
+                          sigmaY: 10 * animation1.value),
+                      child: FadeTransition(
+                        child: child,
+                        opacity: animation1,
+                      ),
+                    ));
+          },
+        ),
         body: Stack(
           fit: StackFit.expand,
           children: [
@@ -105,16 +130,22 @@ class _WaitingViewState extends State<WaitingView>
                       children: [
                         Text(
                           Intl.message("Waiting for EEP connection..."),
-                          style: TextStyle(fontSize: 40, shadows: [
-                            Shadow(color: Colors.black, blurRadius: 8)
-                          ]),
+                          style: TextStyle(
+                              fontSize: 40,
+                              color: Colors.white,
+                              shadows: [
+                                Shadow(color: Colors.black, blurRadius: 8)
+                              ]),
                         ),
                         Text(
                           Intl.message(
                               "Load up a layout which uses EEPBridge!"),
-                          style: TextStyle(fontSize: 20, shadows: [
-                            Shadow(color: Colors.black, blurRadius: 8)
-                          ]),
+                          style: TextStyle(
+                              fontSize: 20,
+                              color: Colors.white,
+                              shadows: [
+                                Shadow(color: Colors.black, blurRadius: 8)
+                              ]),
                         )
                       ],
                     ),
