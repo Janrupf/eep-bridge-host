@@ -1,7 +1,8 @@
 import 'dart:ui';
 
 import 'package:eep_bridge_host/components/animated_multi_switcher.dart';
-import 'package:eep_bridge_host/components/create_project_dialog.dart';
+import 'package:eep_bridge_host/components/dialogs/base_dialog.dart';
+import 'package:eep_bridge_host/components/dialogs/create_project_dialog.dart';
 import 'package:eep_bridge_host/components/sidebar.dart';
 import 'package:eep_bridge_host/logging/logger.dart';
 import 'package:eep_bridge_host/project/controller.dart';
@@ -9,12 +10,12 @@ import 'package:eep_bridge_host/util/ui_messenger.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class WaitingView extends StatefulWidget {
+class MainMenu extends StatefulWidget {
   @override
-  _WaitingViewState createState() => _WaitingViewState();
+  _MainMenuState createState() => _MainMenuState();
 }
 
-class _WaitingViewState extends State<WaitingView>
+class _MainMenuState extends State<MainMenu>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<Offset> _offsetAnimation;
@@ -47,21 +48,8 @@ class _WaitingViewState extends State<WaitingView>
           onPressed: () {
             UIMessageEvent<CreateProjectRequest, String?> event =
                 UIMessageEvent(CreateProjectRequest("test-project"), -1);
-            showGeneralDialog(
-                barrierColor: Color(0x0A000000),
-                context: context,
-                pageBuilder: (context, animation1, animation2) =>
-                    CreateProjectDialog(event),
-                transitionBuilder: (context, animation1, animation2, child) =>
-                    BackdropFilter(
-                      filter: ImageFilter.blur(
-                          sigmaX: 10 * animation1.value,
-                          sigmaY: 10 * animation1.value),
-                      child: FadeTransition(
-                        child: child,
-                        opacity: animation1,
-                      ),
-                    ));
+            showBaseDialog(
+                context: context, dialog: CreateProjectDialog(event));
           },
         ),
         body: Stack(
@@ -98,6 +86,14 @@ class _WaitingViewState extends State<WaitingView>
                         child: Sidebar(opacity: 0.7, children: [
                           SidebarSection(text: Intl.message("MAIN MENU")),
                           SidebarEntry(
+                            icon: Icons.open_in_browser,
+                            text: "Open",
+                            onTap: () {
+                              Logger.warn("Unimplemented: open existing", null,
+                                  StackTrace.current);
+                            },
+                          ),
+                          SidebarEntry(
                             icon: Icons.help_outline,
                             text: "Help",
                             onTap: () {
@@ -106,10 +102,10 @@ class _WaitingViewState extends State<WaitingView>
                             },
                           ),
                           SidebarEntry(
-                            icon: Icons.open_in_browser,
-                            text: "Open",
+                            icon: Icons.text_snippet_outlined,
+                            text: "About",
                             onTap: () {
-                              Logger.warn("Unimplemented: open existing", null,
+                              Logger.warn("Unimplemented: open about", null,
                                   StackTrace.current);
                             },
                           ),

@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:eep_bridge_host/components/create_project_dialog.dart';
+import 'package:eep_bridge_host/components/dialogs/create_project_dialog.dart';
 import 'package:eep_bridge_host/project/controller.dart';
 import 'package:eep_bridge_host/util/ui_messenger.dart';
-import 'package:eep_bridge_host/views/waiting_view.dart';
+import 'package:eep_bridge_host/views/main_menu.dart';
 import 'package:flutter/material.dart';
 
 /// Overview for each project
@@ -32,7 +32,7 @@ class _ViewportWrapperState extends State<ViewportWrapper> {
   @override
   Widget build(BuildContext context) {
     if (_isWaiting) {
-      return WaitingView();
+      return MainMenu();
     } else {
       return Scaffold(body: Text("ABC!"));
     }
