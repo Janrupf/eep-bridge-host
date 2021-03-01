@@ -19,8 +19,7 @@ class ApplicationTheme with ChangeNotifier {
         buttonColor: Color(0xFF1E03C1),
         errorColor: Color(0xFFED3833),
         hintColor: Color(0x88FFFFFF),
-        highlightColor: Color(0xFFFFFFFF)
-    ));
+        highlightColor: Color(0xFFFFFFFF)));
   }
 
   static ThemeData light() {
@@ -30,15 +29,23 @@ class ApplicationTheme with ChangeNotifier {
   static ThemeData _applyCommonProperties(ThemeData data) {
     return data.copyWith(
         textTheme: data.textTheme.apply(fontFamily: "Roboto").copyWith(
-            bodyText2: _textStyle(data.textTheme.bodyText1).copyWith(
+            subtitle1: _textStyle(data.textTheme.subtitle1).copyWith(
+              color: data.highlightColor,
+              fontSize: 10,
+              fontWeight: FontWeight.w400
+            ),
+            bodyText1: _textStyle(data.textTheme.bodyText1).copyWith(
+                color: data.highlightColor,
+                fontSize: 20,
+                fontWeight: FontWeight.w500),
+            bodyText2: _textStyle(data.textTheme.bodyText2).copyWith(
                 color: data.hintColor,
                 fontSize: 20,
                 fontWeight: FontWeight.w300),
             headline1: _textStyle(data.textTheme.headline1).copyWith(
-              fontSize: 40,
-              fontWeight: FontWeight.w400,
-              color: data.highlightColor
-            ),
+                fontSize: 40,
+                fontWeight: FontWeight.w400,
+                color: data.highlightColor),
             headline2: _textStyle(data.textTheme.headline2).copyWith(
                 fontSize: 30,
                 fontWeight: FontWeight.w700,

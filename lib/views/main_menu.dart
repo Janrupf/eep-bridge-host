@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:eep_bridge_host/components/animated_multi_switcher.dart';
+import 'package:eep_bridge_host/components/dialogs/unimplemented_dialog.dart';
 import 'package:eep_bridge_host/components/sidebar.dart';
 import 'package:eep_bridge_host/logging/logger.dart';
 import 'package:flutter/material.dart';
@@ -78,6 +79,7 @@ class _MainMenuState extends State<MainMenu>
                             onTap: () {
                               Logger.warn("Unimplemented: open existing", null,
                                   StackTrace.current);
+                              showUnimplementedDialog(context: context);
                             },
                           ),
                           SidebarEntry(
@@ -86,6 +88,7 @@ class _MainMenuState extends State<MainMenu>
                             onTap: () {
                               Logger.warn("Unimplemented: open help", null,
                                   StackTrace.current);
+                              showUnimplementedDialog(context: context);
                             },
                           ),
                           SidebarEntry(
@@ -94,6 +97,7 @@ class _MainMenuState extends State<MainMenu>
                             onTap: () {
                               Logger.warn("Unimplemented: open about", null,
                                   StackTrace.current);
+                              showUnimplementedDialog(context: context);
                             },
                           ),
                           Spacer(),

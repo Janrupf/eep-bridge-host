@@ -1,3 +1,4 @@
+import 'package:eep_bridge_host/components/control_button.dart';
 import 'package:eep_bridge_host/components/dialogs/base_dialog.dart';
 import 'package:eep_bridge_host/project/controller.dart';
 import 'package:eep_bridge_host/util/ui_messenger.dart';
@@ -53,19 +54,12 @@ class _CreateProjectDialogState extends State<CreateProjectDialog> {
           Wrap(
             spacing: 10,
             children: [
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-                    textStyle: Theme.of(context).textTheme.headline5,
-                    primary: Theme.of(context).errorColor),
+              ControlButton(
+                warn: true,
                 child: Text(Intl.message("CANCEL")),
                 onPressed: () => _reply(context, null),
               ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-                    textStyle: Theme.of(context).textTheme.headline5,
-                    primary: Theme.of(context).buttonColor),
+              ControlButton(
                 child: Text(Intl.message("CREATE")),
                 onPressed:
                     _isOk ? () => _reply(context, _nameController.text) : null,
