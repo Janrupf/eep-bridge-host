@@ -61,10 +61,15 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/dioramas/Diorama_01.png
     - assets/dioramas/Diorama_02.png
     - assets/dioramas/Diorama_03.png
     - assets/dioramas/Diorama_04.png
+    - assets/dioramas/Diorama_05.png
+    - assets/dioramas/Diorama_06.png
+    - assets/dioramas/Diorama_07.png
+    - assets/dioramas/Diorama_08.png
+    - assets/dioramas/Diorama_09.png
+    - assets/dioramas/Diorama_10.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:
