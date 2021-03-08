@@ -135,7 +135,9 @@ class _MainMenuState extends State<MainMenu>
     return [
       for (int i = 2; i <= 10; i++)
         Image.asset(
-            "assets/dioramas/Diorama_${i.toString().padLeft(2, '0')}.png")
+          "assets/dioramas/Diorama_${i.toString().padLeft(2, '0')}.png",
+          key: ValueKey(i),
+        )
     ];
   }
 }
