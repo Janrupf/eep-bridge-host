@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:eep_bridge_host/network/exception.dart';
 import 'package:eep_bridge_host/protogen/network/packets.pb.dart';
+import 'package:flutter/services.dart';
 import 'package:protobuf/protobuf.dart';
 
 enum _ReadState { nameLength, name, packetLength, packet }
@@ -88,7 +89,9 @@ class PacketDecoder extends StreamTransformerBase<Uint8List, GeneratedMessage> {
 
             // The packet length is represented as a single uint16_t in the
             // native code
-            _remaining = Uint16List.fromList(_readBuffer(2))[0];
+            final data = ByteData.sublistView(Uint8List.fromList(_readBuffer(2)));
+
+            _remaining = data.getUint16(0, Endian.big);
             _state = _ReadState.packet;
             break;
           }
