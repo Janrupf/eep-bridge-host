@@ -47,20 +47,7 @@ class _MainMenuState extends State<MainMenu>
                 child: AnimatedMultiSwitcher(
                   transitionDuration: Duration(seconds: 1),
                   displayDuration: Duration(seconds: 30),
-                  children: [
-                    Image.asset("assets/dioramas/Diorama_01.png",
-                        key: ValueKey(1)),
-                    Image.asset("assets/dioramas/Diorama_02.png",
-                        key: ValueKey(2)),
-                    Image.asset(
-                      "assets/dioramas/Diorama_03.png",
-                      key: ValueKey(3),
-                    ),
-                    Image.asset(
-                      "assets/dioramas/Diorama_04.png",
-                      key: ValueKey(4),
-                    ),
-                  ],
+                  children: _collectDioramas(context),
                 ),
                 fit: BoxFit.cover),
             Row(
@@ -143,4 +130,12 @@ class _MainMenuState extends State<MainMenu>
           ],
         ),
       );
+
+  List<Widget> _collectDioramas(BuildContext context) {
+    return [
+      for (int i = 2; i <= 10; i++)
+        Image.asset(
+            "assets/dioramas/Diorama_${i.toString().padLeft(2, '0')}.png")
+    ];
+  }
 }
