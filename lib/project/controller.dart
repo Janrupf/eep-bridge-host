@@ -75,6 +75,8 @@ class ProjectController {
 
       _getOrOpenProject(handshake.projectIdentifier).then((project) {
         project.client.set(event.client);
+      }, onError: (error) {
+        event.client.handshakeFailed(error?.toString() ?? "Unknown error");
       });
     }
   }

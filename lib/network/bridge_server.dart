@@ -37,23 +37,24 @@ class BridgeServer {
   void _onClient(Socket socket) async {
     final decoder = PacketDecoder();
     final packetStream = socket.transform(decoder);
+    final client = BridgeClient(packetStream, socket);
+
     decoder.handshaked.then(
-        (handshake) => _handshakeSucceeded(handshake, packetStream, socket),
-        onError: (error) => _handshakeFailed(error, socket));
+        (handshake) => _handshakeSucceeded(handshake, client),
+        onError: (error) => _handshakeFailed(error, client));
   }
 
   /// Called when a handshake succeeded
-  void _handshakeSucceeded(Handshake handshake,
-      Stream<GeneratedMessage> packetStream, Socket socket) {
+  void _handshakeSucceeded(Handshake handshake, BridgeClient client) {
     Logger.debug("Handshake received: $handshake");
     _eventStreamController.add(
-        ClientConnectedEvent(BridgeClient(packetStream, socket), handshake));
+        ClientConnectedEvent(client, handshake));
   }
 
   /// Called when handshaking a client fails.
-  void _handshakeFailed(NetworkException error, Socket socket) {
+  void _handshakeFailed(NetworkException error, BridgeClient client) {
     Logger.warn("Handshake failed", error);
-    socket.close();
+    client.handshakeFailed(error.message);
   }
 
   /// Schedules the server to close.
