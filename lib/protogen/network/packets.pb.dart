@@ -7,9 +7,14 @@
 
 import 'dart:core' as $core;
 
+import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 import 'definitions.pb.dart' as $0;
+
+import 'packets.pbenum.dart';
+
+export 'packets.pbenum.dart';
 
 class Handshake extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Handshake', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'net.janrupf.eep.network.protocol'), createEmptyInstance: create)
@@ -106,20 +111,11 @@ class Handshake extends $pb.GeneratedMessage {
 
 class HandshakeSuccessful extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'HandshakeSuccessful', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'net.janrupf.eep.network.protocol'), createEmptyInstance: create)
-    ..aOB(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'unpause')
     ..hasRequiredFields = false
   ;
 
   HandshakeSuccessful._() : super();
-  factory HandshakeSuccessful({
-    $core.bool? unpause,
-  }) {
-    final _result = create();
-    if (unpause != null) {
-      _result.unpause = unpause;
-    }
-    return _result;
-  }
+  factory HandshakeSuccessful() => create();
   factory HandshakeSuccessful.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory HandshakeSuccessful.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
@@ -140,15 +136,6 @@ class HandshakeSuccessful extends $pb.GeneratedMessage {
   @$core.pragma('dart2js:noInline')
   static HandshakeSuccessful getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<HandshakeSuccessful>(create);
   static HandshakeSuccessful? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  $core.bool get unpause => $_getBF(0);
-  @$pb.TagNumber(1)
-  set unpause($core.bool v) { $_setBool(0, v); }
-  @$pb.TagNumber(1)
-  $core.bool hasUnpause() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearUnpause() => clearField(1);
 }
 
 class HandshakeFailure extends $pb.GeneratedMessage {
@@ -280,11 +267,40 @@ class HandshakeResponse extends $pb.GeneratedMessage {
 
 class Heartbeat extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Heartbeat', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'net.janrupf.eep.network.protocol'), createEmptyInstance: create)
+    ..a<$fixnum.Int64>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'internalTicks', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$core.int>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'eepTime', $pb.PbFieldType.OU3)
+    ..a<$core.int>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'eepTimeHour', $pb.PbFieldType.OU3)
+    ..a<$core.int>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'eepTimeMinute', $pb.PbFieldType.OU3)
+    ..a<$core.int>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'eepTimeSecond', $pb.PbFieldType.OU3)
     ..hasRequiredFields = false
   ;
 
   Heartbeat._() : super();
-  factory Heartbeat() => create();
+  factory Heartbeat({
+    $fixnum.Int64? internalTicks,
+    $core.int? eepTime,
+    $core.int? eepTimeHour,
+    $core.int? eepTimeMinute,
+    $core.int? eepTimeSecond,
+  }) {
+    final _result = create();
+    if (internalTicks != null) {
+      _result.internalTicks = internalTicks;
+    }
+    if (eepTime != null) {
+      _result.eepTime = eepTime;
+    }
+    if (eepTimeHour != null) {
+      _result.eepTimeHour = eepTimeHour;
+    }
+    if (eepTimeMinute != null) {
+      _result.eepTimeMinute = eepTimeMinute;
+    }
+    if (eepTimeSecond != null) {
+      _result.eepTimeSecond = eepTimeSecond;
+    }
+    return _result;
+  }
   factory Heartbeat.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory Heartbeat.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
@@ -305,5 +321,172 @@ class Heartbeat extends $pb.GeneratedMessage {
   @$core.pragma('dart2js:noInline')
   static Heartbeat getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Heartbeat>(create);
   static Heartbeat? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $fixnum.Int64 get internalTicks => $_getI64(0);
+  @$pb.TagNumber(1)
+  set internalTicks($fixnum.Int64 v) { $_setInt64(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasInternalTicks() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearInternalTicks() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.int get eepTime => $_getIZ(1);
+  @$pb.TagNumber(2)
+  set eepTime($core.int v) { $_setUnsignedInt32(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasEepTime() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearEepTime() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.int get eepTimeHour => $_getIZ(2);
+  @$pb.TagNumber(3)
+  set eepTimeHour($core.int v) { $_setUnsignedInt32(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasEepTimeHour() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearEepTimeHour() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.int get eepTimeMinute => $_getIZ(3);
+  @$pb.TagNumber(4)
+  set eepTimeMinute($core.int v) { $_setUnsignedInt32(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasEepTimeMinute() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearEepTimeMinute() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.int get eepTimeSecond => $_getIZ(4);
+  @$pb.TagNumber(5)
+  set eepTimeSecond($core.int v) { $_setUnsignedInt32(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasEepTimeSecond() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearEepTimeSecond() => clearField(5);
+}
+
+class SetControlObject extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'SetControlObject', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'net.janrupf.eep.network.protocol'), createEmptyInstance: create)
+    ..e<ObjectType>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'type', $pb.PbFieldType.OE, defaultOrMaker: ObjectType.SWITCH, valueOf: ObjectType.valueOf, enumValues: ObjectType.values)
+    ..a<$core.int>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'objectId', $pb.PbFieldType.OU3)
+    ..a<$core.int>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'state', $pb.PbFieldType.OU3)
+    ..hasRequiredFields = false
+  ;
+
+  SetControlObject._() : super();
+  factory SetControlObject({
+    ObjectType? type,
+    $core.int? objectId,
+    $core.int? state,
+  }) {
+    final _result = create();
+    if (type != null) {
+      _result.type = type;
+    }
+    if (objectId != null) {
+      _result.objectId = objectId;
+    }
+    if (state != null) {
+      _result.state = state;
+    }
+    return _result;
+  }
+  factory SetControlObject.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory SetControlObject.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  SetControlObject clone() => SetControlObject()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  SetControlObject copyWith(void Function(SetControlObject) updates) => super.copyWith((message) => updates(message as SetControlObject)) as SetControlObject; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static SetControlObject create() => SetControlObject._();
+  SetControlObject createEmptyInstance() => create();
+  static $pb.PbList<SetControlObject> createRepeated() => $pb.PbList<SetControlObject>();
+  @$core.pragma('dart2js:noInline')
+  static SetControlObject getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SetControlObject>(create);
+  static SetControlObject? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  ObjectType get type => $_getN(0);
+  @$pb.TagNumber(1)
+  set type(ObjectType v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasType() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearType() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.int get objectId => $_getIZ(1);
+  @$pb.TagNumber(2)
+  set objectId($core.int v) { $_setUnsignedInt32(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasObjectId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearObjectId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.int get state => $_getIZ(2);
+  @$pb.TagNumber(3)
+  set state($core.int v) { $_setUnsignedInt32(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasState() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearState() => clearField(3);
+}
+
+class SetPauseState extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'SetPauseState', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'net.janrupf.eep.network.protocol'), createEmptyInstance: create)
+    ..aOB(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'pause')
+    ..hasRequiredFields = false
+  ;
+
+  SetPauseState._() : super();
+  factory SetPauseState({
+    $core.bool? pause,
+  }) {
+    final _result = create();
+    if (pause != null) {
+      _result.pause = pause;
+    }
+    return _result;
+  }
+  factory SetPauseState.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory SetPauseState.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  SetPauseState clone() => SetPauseState()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  SetPauseState copyWith(void Function(SetPauseState) updates) => super.copyWith((message) => updates(message as SetPauseState)) as SetPauseState; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static SetPauseState create() => SetPauseState._();
+  SetPauseState createEmptyInstance() => create();
+  static $pb.PbList<SetPauseState> createRepeated() => $pb.PbList<SetPauseState>();
+  @$core.pragma('dart2js:noInline')
+  static SetPauseState getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SetPauseState>(create);
+  static SetPauseState? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.bool get pause => $_getBF(0);
+  @$pb.TagNumber(1)
+  set pause($core.bool v) { $_setBool(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasPause() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPause() => clearField(1);
 }
 

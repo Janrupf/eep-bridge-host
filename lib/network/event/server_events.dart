@@ -3,7 +3,7 @@ import 'package:eep_bridge_host/protogen/network/packets.pb.dart';
 
 /// Base for events sent when a client connects or disconnects.
 abstract class ServerEvent {
-  BridgeClient client;
+  final BridgeClient client;
 
   ServerEvent(this.client);
 }

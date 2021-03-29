@@ -3,9 +3,10 @@ import 'dart:async';
 import 'package:eep_bridge_host/components/dialogs/base_dialog.dart';
 import 'package:eep_bridge_host/components/dialogs/create_project_dialog.dart';
 import 'package:eep_bridge_host/project/controller.dart';
+import 'package:eep_bridge_host/project/project.dart';
 import 'package:eep_bridge_host/util/ui_messenger.dart';
 import 'package:eep_bridge_host/views/main_menu.dart';
-import 'package:eep_bridge_host/views/project_view.dart';
+import 'package:eep_bridge_host/views/project/project_view.dart';
 import 'package:flutter/material.dart';
 
 /// Overview for each project
@@ -17,7 +18,7 @@ class ViewportWrapper extends StatefulWidget {
 class _ViewportWrapperState extends State<ViewportWrapper> {
   late final StreamSubscription<UIMessageEvent<dynamic, dynamic>> _subscription;
 
-  bool _isWaiting = true;
+  Project? _currentProject;
 
   @override
   void initState() {
@@ -33,10 +34,10 @@ class _ViewportWrapperState extends State<ViewportWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isWaiting) {
+    if (_currentProject == null) {
       return MainMenu();
     } else {
-      return ProjectView();
+      return ProjectView(project: _currentProject!);
     }
   }
 
@@ -46,6 +47,10 @@ class _ViewportWrapperState extends State<ViewportWrapper> {
           context: context,
           dialog: CreateProjectDialog(
               event as UIMessageEvent<CreateProjectRequest, String?>));
+    } else if (event.payload is ShowProjectRequest) {
+      setState(() {
+        _currentProject = event.payload.project;
+      });
     }
   }
 }

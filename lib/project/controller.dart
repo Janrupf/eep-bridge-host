@@ -74,9 +74,15 @@ class ProjectController {
       final handshake = event.handshake;
 
       _getOrOpenProject(handshake.projectIdentifier).then((project) {
-        project.client.set(event.client);
+        project.clientConnected(event.client);
       }, onError: (error) {
         event.client.handshakeFailed(error?.toString() ?? "Unknown error");
+      });
+    } else if (event is ClientDisconnectedEvent) {
+      _openedProjects.forEach((_, project) {
+        if (project.controlledBy(event.client)) {
+          project.clientDisconnected();
+        }
       });
     }
   }
@@ -130,6 +136,8 @@ class ProjectController {
     final projectMeta = ProjectMeta(name: name);
     await metaDirectory.save("project", projectMeta);
 
+    _availableProjects[name] =
+        _IdentifiedProjectMeta(newProjectDirectory, projectMeta);
     return Project(meta: projectMeta);
   }
 

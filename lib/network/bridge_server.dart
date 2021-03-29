@@ -6,11 +6,11 @@ import 'package:eep_bridge_host/network/bridge_client.dart';
 import 'package:eep_bridge_host/network/exception.dart';
 import 'package:eep_bridge_host/network/packet_decoder.dart';
 import 'package:eep_bridge_host/protogen/network/packets.pb.dart';
-import 'package:protobuf/protobuf.dart';
 
 import 'event/server_events.dart';
 
 typedef void AnyConnectedListener();
+typedef void DisconnectingCallback(BridgeClient client, [dynamic error, StackTrace? stackTrace]);
 
 /// Server which EEP clients connect to.
 class BridgeServer {
@@ -37,7 +37,7 @@ class BridgeServer {
   void _onClient(Socket socket) async {
     final decoder = PacketDecoder();
     final packetStream = socket.transform(decoder);
-    final client = BridgeClient(packetStream, socket);
+    final client = BridgeClient(packetStream, _clientDisconnecting, socket);
 
     decoder.handshaked.then(
         (handshake) => _handshakeSucceeded(handshake, client),
@@ -47,6 +47,7 @@ class BridgeServer {
   /// Called when a handshake succeeded
   void _handshakeSucceeded(Handshake handshake, BridgeClient client) {
     Logger.debug("Handshake received: $handshake");
+    client.handshakeSucceeded();
     _eventStreamController.add(
         ClientConnectedEvent(client, handshake));
   }
@@ -55,6 +56,14 @@ class BridgeServer {
   void _handshakeFailed(NetworkException error, BridgeClient client) {
     Logger.warn("Handshake failed", error);
     client.handshakeFailed(error.message);
+  }
+
+  void _clientDisconnecting(BridgeClient client, [dynamic error, StackTrace? stackTrace]) {
+    if(error != null) {
+      Logger.error("Client is disconnecting due to error!", error, stackTrace);
+    }
+
+    _eventStreamController.add(ClientDisconnectedEvent(client));
   }
 
   /// Schedules the server to close.

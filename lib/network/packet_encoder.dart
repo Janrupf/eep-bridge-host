@@ -5,7 +5,11 @@ import 'package:eep_bridge_host/protogen/network/packets.pb.dart';
 import 'package:protobuf/protobuf.dart';
 
 /// All known names for top level messages.
-const Map<Type, String> _decoders = {HandshakeResponse: "HandshakeResponse"};
+const Map<Type, String> _decoders = {
+  HandshakeResponse: "HandshakeResponse",
+  SetControlObject: "SetControlObject",
+  SetPauseState: "SetPauseState"
+};
 
 class PacketEncoder {
   final Socket socket;
@@ -62,6 +66,6 @@ class PacketEncoder {
 
     // 6. Make sure the data has been processed by dart
     //   (this does not ensure that the operating system processed the data!)
-    await socket.flush();
+    return socket.flush();
   }
 }

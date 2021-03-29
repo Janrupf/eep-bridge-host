@@ -20,10 +20,7 @@ message Handshake {
 }
 
 /// Message sent by the server if the handshake succeeded.
-message HandshakeSuccessful {
-  /// Whether the client should unpause the simulation
-  bool unpause = 1;
-}
+message HandshakeSuccessful {}
 
 /// Message sent by the server if the handshake failed.
 message HandshakeFailure {
@@ -40,4 +37,35 @@ message HandshakeResponse {
 }
 
 /// Client to server Heartbeat
-message Heartbeat {}
+message Heartbeat {
+  uint64 internal_ticks = 1;
+
+  uint32 eep_time = 2;
+  uint32 eep_time_hour = 3;
+  uint32 eep_time_minute = 4;
+  uint32 eep_time_second = 5;
+}
+
+/// Possible types of objects to set
+enum ObjectType {
+  SWITCH = 0;
+  SIGNAL = 1;
+}
+
+/// Message sent by the server to set a certain control object state in the client.
+message SetControlObject {
+  /// The type of the object
+  ObjectType type = 1;
+
+  /// The id of the object
+  uint32 object_id = 2;
+
+  /// The state of the object
+  uint32 state = 3;
+}
+
+/// Message sent by the server to control whether the simulation should be pause.
+message SetPauseState {
+  /// If true, the simulation should be paused
+  bool pause = 1;
+}

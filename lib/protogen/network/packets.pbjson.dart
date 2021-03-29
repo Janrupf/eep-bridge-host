@@ -8,6 +8,17 @@
 import 'dart:core' as $core;
 import 'dart:convert' as $convert;
 import 'dart:typed_data' as $typed_data;
+@$core.Deprecated('Use objectTypeDescriptor instead')
+const ObjectType$json = const {
+  '1': 'ObjectType',
+  '2': const [
+    const {'1': 'SWITCH', '2': 0},
+    const {'1': 'SIGNAL', '2': 1},
+  ],
+};
+
+/// Descriptor for `ObjectType`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List objectTypeDescriptor = $convert.base64Decode('CgpPYmplY3RUeXBlEgoKBlNXSVRDSBAAEgoKBlNJR05BTBAB');
 @$core.Deprecated('Use handshakeDescriptor instead')
 const Handshake$json = const {
   '1': 'Handshake',
@@ -24,13 +35,10 @@ final $typed_data.Uint8List handshakeDescriptor = $convert.base64Decode('CglIYW5
 @$core.Deprecated('Use handshakeSuccessfulDescriptor instead')
 const HandshakeSuccessful$json = const {
   '1': 'HandshakeSuccessful',
-  '2': const [
-    const {'1': 'unpause', '3': 1, '4': 1, '5': 8, '10': 'unpause'},
-  ],
 };
 
 /// Descriptor for `HandshakeSuccessful`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List handshakeSuccessfulDescriptor = $convert.base64Decode('ChNIYW5kc2hha2VTdWNjZXNzZnVsEhgKB3VucGF1c2UYASABKAhSB3VucGF1c2U=');
+final $typed_data.Uint8List handshakeSuccessfulDescriptor = $convert.base64Decode('ChNIYW5kc2hha2VTdWNjZXNzZnVs');
 @$core.Deprecated('Use handshakeFailureDescriptor instead')
 const HandshakeFailure$json = const {
   '1': 'HandshakeFailure',
@@ -58,7 +66,36 @@ final $typed_data.Uint8List handshakeResponseDescriptor = $convert.base64Decode(
 @$core.Deprecated('Use heartbeatDescriptor instead')
 const Heartbeat$json = const {
   '1': 'Heartbeat',
+  '2': const [
+    const {'1': 'internal_ticks', '3': 1, '4': 1, '5': 4, '10': 'internalTicks'},
+    const {'1': 'eep_time', '3': 2, '4': 1, '5': 13, '10': 'eepTime'},
+    const {'1': 'eep_time_hour', '3': 3, '4': 1, '5': 13, '10': 'eepTimeHour'},
+    const {'1': 'eep_time_minute', '3': 4, '4': 1, '5': 13, '10': 'eepTimeMinute'},
+    const {'1': 'eep_time_second', '3': 5, '4': 1, '5': 13, '10': 'eepTimeSecond'},
+  ],
 };
 
 /// Descriptor for `Heartbeat`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List heartbeatDescriptor = $convert.base64Decode('CglIZWFydGJlYXQ=');
+final $typed_data.Uint8List heartbeatDescriptor = $convert.base64Decode('CglIZWFydGJlYXQSJQoOaW50ZXJuYWxfdGlja3MYASABKARSDWludGVybmFsVGlja3MSGQoIZWVwX3RpbWUYAiABKA1SB2VlcFRpbWUSIgoNZWVwX3RpbWVfaG91chgDIAEoDVILZWVwVGltZUhvdXISJgoPZWVwX3RpbWVfbWludXRlGAQgASgNUg1lZXBUaW1lTWludXRlEiYKD2VlcF90aW1lX3NlY29uZBgFIAEoDVINZWVwVGltZVNlY29uZA==');
+@$core.Deprecated('Use setControlObjectDescriptor instead')
+const SetControlObject$json = const {
+  '1': 'SetControlObject',
+  '2': const [
+    const {'1': 'type', '3': 1, '4': 1, '5': 14, '6': '.net.janrupf.eep.network.protocol.ObjectType', '10': 'type'},
+    const {'1': 'object_id', '3': 2, '4': 1, '5': 13, '10': 'objectId'},
+    const {'1': 'state', '3': 3, '4': 1, '5': 13, '10': 'state'},
+  ],
+};
+
+/// Descriptor for `SetControlObject`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List setControlObjectDescriptor = $convert.base64Decode('ChBTZXRDb250cm9sT2JqZWN0EkAKBHR5cGUYASABKA4yLC5uZXQuamFucnVwZi5lZXAubmV0d29yay5wcm90b2NvbC5PYmplY3RUeXBlUgR0eXBlEhsKCW9iamVjdF9pZBgCIAEoDVIIb2JqZWN0SWQSFAoFc3RhdGUYAyABKA1SBXN0YXRl');
+@$core.Deprecated('Use setPauseStateDescriptor instead')
+const SetPauseState$json = const {
+  '1': 'SetPauseState',
+  '2': const [
+    const {'1': 'pause', '3': 1, '4': 1, '5': 8, '10': 'pause'},
+  ],
+};
+
+/// Descriptor for `SetPauseState`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List setPauseStateDescriptor = $convert.base64Decode('Cg1TZXRQYXVzZVN0YXRlEhQKBXBhdXNlGAEgASgIUgVwYXVzZQ==');
