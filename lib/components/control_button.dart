@@ -20,5 +20,5 @@ class ControlButton extends StatelessWidget {
       child: child);
 
   Color _color(BuildContext context) =>
-      warn ? Theme.of(context).errorColor : Theme.of(context).buttonColor;
+      warn ? Theme.of(context).errorColor : Theme.of(context).colorScheme.primary;
 }

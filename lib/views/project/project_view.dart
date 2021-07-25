@@ -9,10 +9,48 @@ import 'package:eep_bridge_host/views/project/project_statistics.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class ProjectView extends StatelessWidget {
+class ProjectView extends StatefulWidget {
   final Project project;
 
   ProjectView({required this.project});
+
+  @override
+  State<ProjectView> createState() => _ProjectViewState();
+}
+
+class _ProjectViewState extends State<ProjectView> {
+  late WidgetBuilder _currentChildBuilder;
+  late String _currentTitle;
+  late final List<_ProjectViewSidebarEntry> _entries;
+
+  @override
+  void initState() {
+    super.initState();
+    _entries = [
+      _ProjectViewSidebarEntry(
+        active: true,
+        icon: Icons.poll_outlined,
+        text: Intl.message("Dashboard"),
+        builder: (context) => ProjectStatistics(),
+      ),
+      _ProjectViewSidebarEntry(
+        icon: Icons.engineering,
+        text: Intl.message("Control"),
+        builder: (context) => Center(),
+      ),
+      _ProjectViewSidebarEntry(
+        icon: Icons.departure_board_outlined,
+        text: Intl.message("Schedule"),
+        builder: (context) => Center(),
+      ),
+      _ProjectViewSidebarEntry(
+          icon: Icons.bug_report,
+          text: Intl.message("Debug"),
+          builder: (context) => Center()),
+    ];
+    _currentChildBuilder = _entries[0].builder;
+    _currentTitle = _entries[0].text;
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -35,10 +73,15 @@ class ProjectView extends StatelessWidget {
             ),
             Row(
               children: [
-                _sidebar(context),
+                _ProjectViewSidebar(
+                  project: widget.project,
+                  entries: _entries,
+                  callback: _onEntryIndexChanged,
+                ),
                 ProjectContentWrapper(
-                  child: ProjectStatistics(),
-                  project: project,
+                  child: _currentChildBuilder(context),
+                  project: widget.project,
+                  title: _currentTitle,
                 )
               ],
             )
@@ -46,29 +89,10 @@ class ProjectView extends StatelessWidget {
         ),
       );
 
-  Widget _sidebar(BuildContext context) => Sidebar(children: [
-        SidebarSection(text: Intl.message("MENU")),
-        SidebarEntry(
-            active: true,
-            icon: Icons.poll_outlined,
-            text: Intl.message("Dashboard"),
-            onTap: () {}),
-        SidebarEntry(
-            icon: Icons.engineering,
-            text: Intl.message("Control"),
-            onTap: () {}),
-        SidebarEntry(
-            icon: Icons.departure_board_outlined,
-            text: Intl.message("Schedule"),
-            onTap: () {}),
-        Spacer(),
-        _TogglePauseButton(
-          project: project,
-        ),
-        SizedBox(
-          height: 40,
-        )
-      ]);
+  void _onEntryIndexChanged(int newIndex) => setState(() {
+    _currentChildBuilder = _entries[newIndex].builder;
+    _currentTitle = _entries[newIndex].text;
+  });
 }
 
 class _TogglePauseButton extends StatelessWidget {
@@ -148,4 +172,70 @@ class _TogglePauseButton extends StatelessWidget {
   void _onPauseClicked() {
     project.paused = true;
   }
+}
+
+class _ProjectViewSidebarEntry {
+  IconData icon;
+  String text;
+  WidgetBuilder builder;
+  bool active;
+
+  _ProjectViewSidebarEntry(
+      {required this.icon,
+      required this.text,
+      required this.builder,
+      this.active = false});
+}
+
+typedef IndexCallback = void Function(int i);
+
+class _ProjectViewSidebar extends StatefulWidget {
+  final Project project;
+  final List<_ProjectViewSidebarEntry> entries;
+  final IndexCallback callback;
+
+  _ProjectViewSidebar({
+    Key? key,
+    required this.project,
+    required this.entries,
+    required this.callback,
+  }) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => _ProjectViewSidebarState();
+}
+
+class _ProjectViewSidebarState extends State<_ProjectViewSidebar> {
+  @override
+  Widget build(BuildContext context) => Sidebar(
+      children: <Widget>[
+            SidebarSection(text: Intl.message("MENU")),
+          ] +
+          List.generate(
+              widget.entries.length,
+              (i) => SidebarEntry(
+                    icon: widget.entries[i].icon,
+                    text: widget.entries[i].text,
+                    active: widget.entries[i].active,
+                    onTap: () {
+                      setState(() {
+                        widget.entries.forEach((e) => e.active = false);
+                        widget.entries[i].active = true;
+                      });
+
+                      widget.callback(i);
+                    },
+                  )) +
+          [
+            Spacer(),
+            SizedBox(
+              height: 20,
+            ),
+            _TogglePauseButton(
+              project: widget.project,
+            ),
+            SizedBox(
+              height: 40,
+            )
+          ]);
 }

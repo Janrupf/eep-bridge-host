@@ -15,8 +15,8 @@ class ApplicationTheme with ChangeNotifier {
 
   static ThemeData dark() {
     return _applyCommonProperties(ThemeData.dark().copyWith(
-        accentColor: Color(0xFF060D1C),
-        buttonColor: Color(0xFF1E03C1),
+        colorScheme: ColorScheme.light(
+            secondary: Color(0xFF060D1C), primary: Color(0xFF1E03C1)),
         errorColor: Color(0xFFED3833),
         hintColor: Color(0x88FFFFFF),
         highlightColor: Color(0xFFFFFFFF)));
@@ -30,10 +30,9 @@ class ApplicationTheme with ChangeNotifier {
     return data.copyWith(
         textTheme: data.textTheme.apply(fontFamily: "Roboto").copyWith(
             subtitle1: _textStyle(data.textTheme.subtitle1).copyWith(
-              color: data.highlightColor,
-              fontSize: 10,
-              fontWeight: FontWeight.w400
-            ),
+                color: data.highlightColor,
+                fontSize: 10,
+                fontWeight: FontWeight.w400),
             bodyText1: _textStyle(data.textTheme.bodyText1).copyWith(
                 color: data.highlightColor,
                 fontSize: 20,

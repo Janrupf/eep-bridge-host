@@ -17,7 +17,7 @@ class MetaDirectory {
     return file.writeAsBytes(message.writeToBuffer());
   }
 
-  /// Reads a protocol [message] from the given [name].
+  /// Reads a protocol [text] from the given [name].
   Future<T> load<T extends GeneratedMessage>(
       String name, MetaDecoder<T> decoder) async {
     final file = File("${_baseDir.path}/$name.protobuf");

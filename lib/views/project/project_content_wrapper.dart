@@ -2,14 +2,19 @@ import 'package:eep_bridge_host/components/event_listening_widget.dart';
 import 'package:eep_bridge_host/project/event/project_events.dart';
 import 'package:eep_bridge_host/project/project.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class ProjectContentWrapper extends StatelessWidget {
   final Widget child;
   final Project project;
+  final String title;
 
-  ProjectContentWrapper({required this.child, required this.project});
+  ProjectContentWrapper({
+    Key? key,
+    required this.child,
+    required this.project,
+    required this.title,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) => MultiProvider(
@@ -38,8 +43,7 @@ class ProjectContentWrapper extends StatelessWidget {
                       _time(context)
                     ],
                   ),
-                  Text(Intl.message("Statistics"),
-                      style: Theme.of(context).textTheme.headline1),
+                  Text(title, style: Theme.of(context).textTheme.headline1),
                   SizedBox(height: 10),
                   child
                 ],
