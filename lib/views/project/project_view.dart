@@ -4,6 +4,7 @@ import 'package:eep_bridge_host/components/event_listening_widget.dart';
 import 'package:eep_bridge_host/components/sidebar.dart';
 import 'package:eep_bridge_host/project/event/project_events.dart';
 import 'package:eep_bridge_host/project/project.dart';
+import 'package:eep_bridge_host/views/debug/debug_view.dart';
 import 'package:eep_bridge_host/views/project/project_content_wrapper.dart';
 import 'package:eep_bridge_host/views/project/project_statistics.dart';
 import 'package:flutter/material.dart';
@@ -46,7 +47,7 @@ class _ProjectViewState extends State<ProjectView> {
       _ProjectViewSidebarEntry(
           icon: Icons.bug_report,
           text: Intl.message("Debug"),
-          builder: (context) => Center()),
+          builder: (context) => DebugView(project: widget.project,)),
     ];
     _currentChildBuilder = _entries[0].builder;
     _currentTitle = _entries[0].text;

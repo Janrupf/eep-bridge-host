@@ -29,9 +29,13 @@ class ApplicationTheme with ChangeNotifier {
   static ThemeData _applyCommonProperties(ThemeData data) {
     return data.copyWith(
         textTheme: data.textTheme.apply(fontFamily: "Roboto").copyWith(
+            button: _textStyle(data.textTheme.subtitle1).copyWith(
+                color: data.highlightColor,
+                fontSize: 15,
+                fontWeight: FontWeight.w400),
             subtitle1: _textStyle(data.textTheme.subtitle1).copyWith(
                 color: data.highlightColor,
-                fontSize: 10,
+                fontSize: 15,
                 fontWeight: FontWeight.w400),
             bodyText1: _textStyle(data.textTheme.bodyText1).copyWith(
                 color: data.highlightColor,

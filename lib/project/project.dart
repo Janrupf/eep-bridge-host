@@ -83,6 +83,22 @@ class Project {
     }
   }
 
+  void setSignal(int signal, int state) {
+    _client!.send(SetControlObject(
+      type: ObjectType.SIGNAL,
+      objectId: signal,
+      state: state,
+    ));
+  }
+
+  void setSwitch(int sw, int state) {
+    _client!.send(SetControlObject(
+      type: ObjectType.SWITCH,
+      objectId: sw,
+      state: state,
+    ));
+  }
+
   bool get paused => _paused;
 
   /// Stream on which project events are dispatched
