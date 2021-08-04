@@ -164,6 +164,8 @@ class _LayoutCanvasState extends State<LayoutCanvas> {
       node.position = offset;
       node.state = _LayoutNodeState.normal;
     }
+
+    _scheduleRedraw();
   }
 }
 

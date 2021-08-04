@@ -22,7 +22,7 @@ class LayoutEditor extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             children: [
               Padding(
-                padding: EdgeInsets.all(10),
+                padding: EdgeInsets.only(left: 20),
                 child: _buildControlColumn(context),
               ),
               Flexible(
@@ -42,7 +42,16 @@ class LayoutEditor extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
-              child: Text("Add station"),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Icon(Icons.train),
+                    SizedBox(width: 5,),
+                    Text("Add station", style: Theme.of(context).textTheme.bodyText1,),
+                  ],
+                ),
+              ),
               onPressed: () {
                 _nodes.add(
                   LayoutNode.ghosted(
@@ -55,8 +64,32 @@ class LayoutEditor extends StatelessWidget {
                 _changeNotifier.notifyListeners();
               },
             ),
+            SizedBox(height: 10),
             ElevatedButton(
-              child: Text("Add intersection"),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Icon(Icons.switch_right),
+                    SizedBox(width: 5,),
+                    Text("Add intersection", style: Theme.of(context).textTheme.bodyText1,),
+                  ],
+                ),
+              ),
+              onPressed: () {},
+            ),
+            SizedBox(height: 10),
+            ElevatedButton(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Icon(Icons.bedtime),
+                    SizedBox(width: 5,),
+                    Text("Add train storage", style: Theme.of(context).textTheme.bodyText1,),
+                  ],
+                ),
+              ),
               onPressed: () {},
             ),
           ],
