@@ -40,47 +40,50 @@ class _LayoutCanvasState extends State<LayoutCanvas> {
       nodes: widget.nodes,
     );
 
-    return MouseRegion(
-      onEnter: (e) {
-        if (_updateGhostedNode(e.localPosition)) {
-          return;
-        }
-
-        _setNodeStateAt(e.localPosition, _LayoutNodeState.hover);
-      },
-      onExit: (e) {
-        _dropGhostedNode(null);
-        _resetNodeStates();
-      },
-      onHover: (e) {
-        if (_updateGhostedNode(e.localPosition)) {
-          return;
-        }
-
-        _setNodeStateAt(e.localPosition, _LayoutNodeState.hover);
-      },
-      child: GestureDetector(
-        onPanStart: (e) {
-          _setNodeStateAt(e.localPosition, _LayoutNodeState.dragged);
-        },
-        onPanUpdate: (e) {
-          final node = widget.nodes.firstWhereOrNull(
-              (node) => node.state == _LayoutNodeState.dragged);
-          if (node != null && node.position != e.localPosition) {
-            node.position = e.localPosition;
-            _scheduleRedraw();
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: MouseRegion(
+        onEnter: (e) {
+          if (_updateGhostedNode(e.localPosition)) {
+            return;
           }
+
+          _setNodeStateAt(e.localPosition, _LayoutNodeState.hover);
         },
-        onPanEnd: (e) {
+        onExit: (e) {
+          _dropGhostedNode(null);
           _resetNodeStates();
         },
-        onTapUp: (e) {
-          _dropGhostedNode(e.localPosition);
+        onHover: (e) {
+          if (_updateGhostedNode(e.localPosition)) {
+            return;
+          }
+
+          _setNodeStateAt(e.localPosition, _LayoutNodeState.hover);
         },
-        child: RepaintBoundary(
-          child: CustomPaint(
-            willChange: true,
-            painter: painter,
+        child: GestureDetector(
+          onPanStart: (e) {
+            _setNodeStateAt(e.localPosition, _LayoutNodeState.dragged);
+          },
+          onPanUpdate: (e) {
+            final node = widget.nodes.firstWhereOrNull(
+                (node) => node.state == _LayoutNodeState.dragged);
+            if (node != null && node.position != e.localPosition) {
+              node.position = e.localPosition;
+              _scheduleRedraw();
+            }
+          },
+          onPanEnd: (e) {
+            _resetNodeStates();
+          },
+          onTapUp: (e) {
+            _dropGhostedNode(e.localPosition);
+          },
+          child: RepaintBoundary(
+            child: CustomPaint(
+              willChange: true,
+              painter: painter,
+            ),
           ),
         ),
       ),
@@ -134,7 +137,6 @@ class _LayoutCanvasState extends State<LayoutCanvas> {
   }
 
   bool _updateGhostedNode(Offset offset) {
-    print("X");
     final node = widget.nodes
         .firstWhereOrNull((node) => node.state == _LayoutNodeState.ghosted);
     if (node == null) {
@@ -173,6 +175,8 @@ class _LayoutCanvasPainter extends CustomPainter {
   final Paint _dragPaint;
   final Paint _ghostedPaint;
 
+  static const double GRID_SPACING = 45.0;
+
   final List<LayoutNode> nodes;
 
   _LayoutCanvasPainter({
@@ -193,9 +197,64 @@ class _LayoutCanvasPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    _drawLineBetweenNodes(canvas, nodes[0].position, nodes[1].position);
+    final areaRRect = RRect.fromLTRBAndCorners(
+      0,
+      0,
+      size.width,
+      size.height,
+      topLeft: Radius.circular(10.0),
+      topRight: Radius.circular(10.0),
+      bottomLeft: Radius.circular(10.0),
+      bottomRight: Radius.circular(10.0),
+    );
 
+    canvas.save();
+
+    canvas.clipRRect(areaRRect);
+
+    _drawGrid(canvas, size);
+    _drawLineBetweenNodes(canvas, nodes[0].position, nodes[1].position);
     nodes.forEach((node) => _drawNode(canvas, node));
+
+    canvas.restore();
+
+    bool borderWarning = nodes.any((node) =>
+    node.position.dx <= 20 ||
+        node.position.dy <= 20 ||
+        size.width - node.position.dx <= 20 ||
+        size.height - node.position.dy <= 20);
+
+    final borderPaint = Paint()
+      ..color = borderWarning ? Colors.red : Colors.white.withAlpha(100)
+      ..strokeWidth = 2
+      ..style = PaintingStyle.stroke;
+
+    canvas.drawRRect(
+      areaRRect.inflate(2.0),
+      borderPaint,
+    );
+  }
+
+  void _drawGrid(Canvas canvas, Size size) {
+    final gridPaint = Paint()..color = Colors.grey.shade700;
+
+    int horizontalCellCount = size.width ~/ GRID_SPACING;
+    double startX = (size.width / 2) -
+        (GRID_SPACING / 2) -
+        (((horizontalCellCount - 1) / 2) * GRID_SPACING);
+
+    for (double x = startX; x < size.width; x += GRID_SPACING) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), gridPaint);
+    }
+
+    int verticalCellCount = size.height ~/ GRID_SPACING;
+    double startY = (size.height / 2) -
+        (GRID_SPACING / 2) -
+        (((verticalCellCount - 1) / 2) * GRID_SPACING);
+
+    for (double y = startY; y < size.height; y += GRID_SPACING) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
+    }
   }
 
   void _drawLineBetweenNodes(Canvas canvas, Offset first, Offset second) {

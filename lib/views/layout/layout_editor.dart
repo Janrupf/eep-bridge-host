@@ -25,12 +25,6 @@ class LayoutEditor extends StatelessWidget {
                 padding: EdgeInsets.all(10),
                 child: _buildControlColumn(context),
               ),
-              SizedBox(
-                width: 2,
-                child: Container(
-                  color: Colors.white,
-                ),
-              ),
               Flexible(
                   fit: FlexFit.tight,
                   child: LayoutCanvas(
