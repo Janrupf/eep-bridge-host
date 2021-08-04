@@ -215,7 +215,7 @@ class _LayoutCanvasPainter extends CustomPainter {
     canvas.clipRRect(areaRRect);
 
     _drawGrid(canvas, size);
-    _drawLineBetweenNodes(canvas, nodes[0].position, nodes[1].position);
+    _drawLineBetweenNodes(canvas, nodes[0], nodes[1]);
     nodes.forEach((node) => _drawNode(canvas, node));
 
     canvas.restore();
@@ -259,9 +259,9 @@ class _LayoutCanvasPainter extends CustomPainter {
     }
   }
 
-  void _drawLineBetweenNodes(Canvas canvas, Offset first, Offset second) {
-    var adjustedX = second.dx - first.dx;
-    var adjustedY = second.dy - first.dy;
+  void _drawLineBetweenNodes(Canvas canvas, LayoutNode first, LayoutNode second) {
+    var adjustedX = second.position.dx - first.position.dx;
+    var adjustedY = second.position.dy - first.position.dy;
     final distance = math.sqrt(adjustedX * adjustedX + adjustedY * adjustedY);
 
     if (distance > 0) {
@@ -272,36 +272,36 @@ class _LayoutCanvasPainter extends CustomPainter {
     adjustedX *= distance - 20;
     adjustedY *= distance - 20;
 
-    final firstAdjusted = first.translate(adjustedX, adjustedY);
-    final secondAdjusted = second.translate(-adjustedX, -adjustedY);
-    canvas.drawLine(secondAdjusted, firstAdjusted, _normalPaint);
+    final firstAdjusted = first.position.translate(adjustedX, adjustedY);
+    final secondAdjusted = second.position.translate(-adjustedX, -adjustedY);
+    canvas.drawLine(secondAdjusted, firstAdjusted, _paintFor(first, second));
   }
 
   void _drawNode(Canvas canvas, LayoutNode node) {
-    final circlePaint;
+    final paint = _paintFor(node);
 
-    switch (node.state) {
+    _drawIcon(canvas, node.icon, node.position, paint.color);
+    canvas.drawCircle(node.position, 20, paint);
+    _drawText(
+        canvas, node.label, node.position.translate(30, 0), paint.color);
+  }
+  
+  Paint _paintFor(LayoutNode a, [LayoutNode? b]) {
+    final important = b == null ? a : a.state.toPriority() > b.state.toPriority() ? a : b;
+    
+    switch(important.state) {
       case _LayoutNodeState.normal:
-        circlePaint = _normalPaint;
-        break;
+        return _normalPaint;
 
       case _LayoutNodeState.hover:
-        circlePaint = _hoverPaint;
-        break;
+        return _hoverPaint;
 
       case _LayoutNodeState.dragged:
-        circlePaint = _dragPaint;
-        break;
+        return _dragPaint;
 
       case _LayoutNodeState.ghosted:
-        circlePaint = _ghostedPaint;
-        break;
+        return _ghostedPaint;
     }
-
-    _drawIcon(canvas, node.icon, node.position, circlePaint.color);
-    canvas.drawCircle(node.position, 20, circlePaint);
-    _drawText(
-        canvas, node.label, node.position.translate(30, 0), circlePaint.color);
   }
 
   void _drawText(
@@ -367,6 +367,24 @@ class NoValueChangeNotifier extends ChangeNotifier {
 }
 
 enum _LayoutNodeState { normal, hover, dragged, ghosted }
+
+extension _LayoutNodeStateExtension on _LayoutNodeState {
+  int toPriority() {
+    switch(this) {
+      case _LayoutNodeState.normal:
+        return 1;
+        
+      case _LayoutNodeState.hover:
+        return 2;
+
+      case _LayoutNodeState.dragged:
+        return 3;
+
+      case _LayoutNodeState.ghosted:
+        return -1;
+    }
+  }
+}
 
 class LayoutNode {
   Offset position;
