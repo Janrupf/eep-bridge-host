@@ -5,6 +5,7 @@ import 'package:eep_bridge_host/util/application_theme.dart';
 import 'package:eep_bridge_host/views/viewport_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:nativeshell/nativeshell.dart';
 
 void main() {
   runApp(MultiProvider(providers: [
@@ -35,11 +36,19 @@ class EEPBridgeHost extends StatelessWidget {
             child: MaterialApp(
               debugShowCheckedModeBanner: false,
               initialRoute: "/",
-              routes: {"/": (context) => ViewportWrapper()},
+              routes: {"/": (context) => WindowWidget(onCreateState: (data) => _MainWindowState())},
               title: "EEPBridgeHost",
               theme: ApplicationTheme.light(),
               darkTheme: ApplicationTheme.dark(),
               themeMode: theme.currentTheme(),
             ),
           ));
+}
+
+class _MainWindowState extends WindowState {
+  @override
+  Widget build(BuildContext context) => ViewportWrapper();
+
+  @override
+  WindowSizingMode get windowSizingMode => WindowSizingMode.atLeastIntrinsicSize;
 }

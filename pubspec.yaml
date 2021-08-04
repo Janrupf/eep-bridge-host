@@ -45,6 +45,9 @@ dependencies:
   # Charts
   fl_chart: ^0.20.0-nullsafety1
 
+  # Windowing
+  nativeshell: 0.1.8
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

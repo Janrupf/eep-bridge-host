@@ -1,0 +1,14 @@
+[package]
+name = "eep_bridge_host"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+nativeshell = "0.1.8"
+pretty_env_logger = "0.4.0"
+
+[build-dependencies]
+nativeshell_build = "0.1.5"
+cargo-emit = "0.1.1"
