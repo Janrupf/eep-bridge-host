@@ -5,6 +5,7 @@ import 'package:eep_bridge_host/components/sidebar.dart';
 import 'package:eep_bridge_host/project/event/project_events.dart';
 import 'package:eep_bridge_host/project/project.dart';
 import 'package:eep_bridge_host/views/debug/debug_view.dart';
+import 'package:eep_bridge_host/views/layout/layout_editor.dart';
 import 'package:eep_bridge_host/views/project/project_content_wrapper.dart';
 import 'package:eep_bridge_host/views/project/project_statistics.dart';
 import 'package:flutter/material.dart';
@@ -40,6 +41,11 @@ class _ProjectViewState extends State<ProjectView> {
         builder: (context) => Center(),
       ),
       _ProjectViewSidebarEntry(
+        icon: Icons.map,
+        text: Intl.message("Layout"),
+        builder: (context) => LayoutEditor(),
+      ),
+      _ProjectViewSidebarEntry(
         icon: Icons.departure_board_outlined,
         text: Intl.message("Schedule"),
         builder: (context) => Center(),
@@ -47,7 +53,9 @@ class _ProjectViewState extends State<ProjectView> {
       _ProjectViewSidebarEntry(
           icon: Icons.bug_report,
           text: Intl.message("Debug"),
-          builder: (context) => DebugView(project: widget.project,)),
+          builder: (context) => DebugView(
+                project: widget.project,
+              )),
     ];
     _currentChildBuilder = _entries[0].builder;
     _currentTitle = _entries[0].text;
@@ -91,9 +99,9 @@ class _ProjectViewState extends State<ProjectView> {
       );
 
   void _onEntryIndexChanged(int newIndex) => setState(() {
-    _currentChildBuilder = _entries[newIndex].builder;
-    _currentTitle = _entries[newIndex].text;
-  });
+        _currentChildBuilder = _entries[newIndex].builder;
+        _currentTitle = _entries[newIndex].text;
+      });
 }
 
 class _TogglePauseButton extends StatelessWidget {

@@ -24,30 +24,28 @@ class ProjectContentWrapper extends StatelessWidget {
           child: Container(
             height: double.infinity,
             padding: EdgeInsets.symmetric(vertical: 40, horizontal: 80),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Icon(
-                        Icons.query_builder,
-                        size: 40,
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      _time(context)
-                    ],
-                  ),
-                  Text(title, style: Theme.of(context).textTheme.headline1),
-                  SizedBox(height: 10),
-                  child
-                ],
-              ),
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Icon(
+                      Icons.query_builder,
+                      size: 40,
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    _time(context)
+                  ],
+                ),
+                Text(title, style: Theme.of(context).textTheme.headline1),
+                SizedBox(height: 10),
+                child
+              ],
             ),
           ),
         )),
