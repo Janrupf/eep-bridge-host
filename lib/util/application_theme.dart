@@ -16,7 +16,7 @@ class ApplicationTheme with ChangeNotifier {
   static ThemeData dark() {
     return _applyCommonProperties(ThemeData.dark().copyWith(
         colorScheme: ColorScheme.light(
-            secondary: Color(0xFF060D1C), primary: Color(0xFF1E03C1)),
+            secondary: Color(0xFF060D1C), primary: Color(0xFF0A2550)),
         errorColor: Color(0xFFED3833),
         hintColor: Color(0x88FFFFFF),
         highlightColor: Color(0xFFFFFFFF)));
