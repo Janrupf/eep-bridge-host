@@ -42,44 +42,48 @@ class LayoutEditor extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Spacer(),
-            SlimIconButton(
-              icon: Icons.train,
-              label: Intl.message("Add passenger station"),
-              onPressed: () {
-                _controller.addNode(
-                  LayoutNode.ghosted(
-                    position: Offset(20, 20),
-                    icon: Icons.train,
-                    label: "Station 3",
-                  ),
-                );
-              },
+            _nodeAddButton(
+              Icons.train,
+              Intl.message("Add station"),
+              Intl.message("New station"),
             ),
             SizedBox(height: 10),
-            SlimIconButton(
-              icon: Icons.local_shipping,
-              label: Intl.message("Add cargo station"),
-              onPressed: () {},
+            _nodeAddButton(
+              Icons.local_shipping,
+              Intl.message("Add freight yard"),
+              Intl.message("New freight yard"),
             ),
             SizedBox(height: 10),
-            SlimIconButton(
-              icon: Icons.switch_right,
-              label: Intl.message("Add intersection"),
-              onPressed: () {},
+            _nodeAddButton(
+              Icons.switch_right,
+              Intl.message("Add intersection"),
+              Intl.message("New intersection"),
             ),
             SizedBox(height: 10),
-            SlimIconButton(
-              icon: Icons.bedtime,
-              label: Intl.message("Add train storage"),
-              onPressed: () {},
+            _nodeAddButton(
+              Icons.bedtime,
+              Intl.message("Add train storage"),
+              Intl.message("New train storage"),
             ),
             Spacer(),
             SlimIconButton(
               icon: Icons.control_camera,
-              label: Intl.message("Center"),
+              label: Intl.message("Center view"),
               onPressed: () => _controller.pan = Offset(0, 0),
             )
           ],
         ),
       );
+
+  Widget _nodeAddButton(IconData icon, String label, String newNodeName) =>
+      SlimIconButton(
+        icon: icon,
+        label: label,
+        onPressed: () => _addGhostedNode(icon, newNodeName),
+      );
+
+  void _addGhostedNode(IconData icon, String name) {
+    _controller.addNode(LayoutNode.ghosted(
+        position: Offset(-4000, -4000), icon: icon, label: name));
+  }
 }

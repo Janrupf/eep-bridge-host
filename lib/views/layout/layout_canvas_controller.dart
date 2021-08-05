@@ -33,7 +33,7 @@ class LayoutCanvasController {
       return;
     }
 
-    nodes.remove(node);
+    _nodes.remove(node);
     _redraw();
   }
 

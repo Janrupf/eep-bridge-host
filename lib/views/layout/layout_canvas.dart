@@ -18,20 +18,6 @@ class LayoutCanvas extends StatefulWidget {
 
 class _LayoutCanvasState extends State<LayoutCanvas> {
   @override
-  void initState() {
-    super.initState();
-
-    widget.controller.addNodes([
-      LayoutNode(
-          icon: Icons.train, label: "Station 0", position: Offset(100, 100)),
-      LayoutNode(
-          icon: Icons.train, label: "Station 1", position: Offset(90, 180)),
-      LayoutNode(
-          icon: Icons.train, label: "Station 2", position: Offset(300, 90))
-    ]);
-  }
-
-  @override
   Widget build(BuildContext context) {
     final painter = _LayoutCanvasPainter(
         backgroundColor: Theme.of(context).colorScheme.secondary,
