@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:eep_bridge_host/logging/logger.dart';
 import 'package:eep_bridge_host/util/iteratable_extension.dart';
 import 'package:flutter/material.dart';
 
@@ -78,6 +79,14 @@ class _LayoutCanvasState extends State<LayoutCanvas> {
           },
           onTapUp: (e) {
             _dropGhostedNode(e.localPosition);
+          },
+          onSecondaryTapUp: (e) {
+            final node = _findNodeAt(e.localPosition);
+            if (node == null) {
+              return;
+            }
+
+            _showNodeEditMenu(e.globalPosition, node);
           },
           child: RepaintBoundary(
             child: CustomPaint(
@@ -167,6 +176,46 @@ class _LayoutCanvasState extends State<LayoutCanvas> {
 
     _scheduleRedraw();
   }
+
+  void _showNodeEditMenu(Offset globalPosition, LayoutNode node) {
+    showMenu(
+      color: Theme.of(context).colorScheme.primary,
+      context: context,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
+      position: RelativeRect.fromLTRB(
+        globalPosition.dx,
+        globalPosition.dy,
+        1000000,
+        0,
+      ),
+      items: [
+        PopupMenuItem(child: Row(
+          children: [
+            Icon(Icons.build),
+            SizedBox(width: 3,),
+            Text("Edit"),
+          ],
+        ), height: 30,),
+        PopupMenuItem(child: Row(
+          children: [
+            Icon(Icons.delete),
+            SizedBox(width: 3,),
+            Text("Delete"),
+          ],
+        ), height: 30, onTap: () => _deleteNode(node),),
+      ],
+    );
+  }
+
+  void _deleteNode(LayoutNode node) {
+    if(!widget.nodes.contains(node)) {
+      Logger.warn("Tried to delete a nonexistent layout node");
+      return;
+    }
+
+    widget.nodes.remove(node);
+    _scheduleRedraw();
+  }
 }
 
 class _LayoutCanvasPainter extends CustomPainter {
@@ -215,13 +264,13 @@ class _LayoutCanvasPainter extends CustomPainter {
     canvas.clipRRect(areaRRect);
 
     _drawGrid(canvas, size);
-    _drawLineBetweenNodes(canvas, nodes[0], nodes[1]);
+    // _drawLineBetweenNodes(canvas, nodes[0], nodes[1]);
     nodes.forEach((node) => _drawNode(canvas, node));
 
     canvas.restore();
 
     bool borderWarning = nodes.any((node) =>
-    node.position.dx <= 20 ||
+        node.position.dx <= 20 ||
         node.position.dy <= 20 ||
         size.width - node.position.dx <= 20 ||
         size.height - node.position.dy <= 20);
@@ -259,7 +308,8 @@ class _LayoutCanvasPainter extends CustomPainter {
     }
   }
 
-  void _drawLineBetweenNodes(Canvas canvas, LayoutNode first, LayoutNode second) {
+  void _drawLineBetweenNodes(
+      Canvas canvas, LayoutNode first, LayoutNode second) {
     var adjustedX = second.position.dx - first.position.dx;
     var adjustedY = second.position.dy - first.position.dy;
     final distance = math.sqrt(adjustedX * adjustedX + adjustedY * adjustedY);
@@ -282,14 +332,17 @@ class _LayoutCanvasPainter extends CustomPainter {
 
     _drawIcon(canvas, node.icon, node.position, paint.color);
     canvas.drawCircle(node.position, 20, paint);
-    _drawText(
-        canvas, node.label, node.position.translate(30, 0), paint.color);
+    _drawText(canvas, node.label, node.position.translate(30, 0), paint.color);
   }
-  
+
   Paint _paintFor(LayoutNode a, [LayoutNode? b]) {
-    final important = b == null ? a : a.state.toPriority() > b.state.toPriority() ? a : b;
-    
-    switch(important.state) {
+    final important = b == null
+        ? a
+        : a.state.toPriority() > b.state.toPriority()
+            ? a
+            : b;
+
+    switch (important.state) {
       case _LayoutNodeState.normal:
         return _normalPaint;
 
@@ -370,10 +423,10 @@ enum _LayoutNodeState { normal, hover, dragged, ghosted }
 
 extension _LayoutNodeStateExtension on _LayoutNodeState {
   int toPriority() {
-    switch(this) {
+    switch (this) {
       case _LayoutNodeState.normal:
         return 1;
-        
+
       case _LayoutNodeState.hover:
         return 2;
 
