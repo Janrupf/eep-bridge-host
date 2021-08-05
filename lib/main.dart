@@ -32,14 +32,22 @@ class EEPBridgeHost extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Consumer<ApplicationTheme>(
       builder: (context, theme, child) => AutoUnfocus(
-            child: MaterialApp(
-              debugShowCheckedModeBanner: false,
-              initialRoute: "/",
-              routes: {"/": (context) => ViewportWrapper()},
-              title: "EEPBridgeHost",
-              theme: ApplicationTheme.light(),
-              darkTheme: ApplicationTheme.dark(),
-              themeMode: theme.currentTheme(),
+            child: WillPopScope(
+              onWillPop: () => _onPopScope(context),
+              child: MaterialApp(
+                debugShowCheckedModeBanner: false,
+                initialRoute: "/",
+                routes: {"/": (context) => ViewportWrapper()},
+                title: "EEPBridgeHost",
+                theme: ApplicationTheme.light(),
+                darkTheme: ApplicationTheme.dark(),
+                themeMode: theme.currentTheme(),
+              ),
             ),
           ));
+
+  Future<bool> _onPopScope(BuildContext context) async {
+    await Provider.of<ProjectController>(context, listen: false).saveAll();
+    return true;
+  }
 }

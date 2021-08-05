@@ -10,16 +10,16 @@ import 'package:eep_bridge_host/util/io.dart';
 import 'package:eep_bridge_host/util/ui_messenger.dart';
 import 'package:path_provider/path_provider.dart' as PathProvider;
 
-class _IdentifiedProjectMeta {
+class IdentifiedProjectMeta {
   final Directory directory;
   final ProjectMeta meta;
 
-  _IdentifiedProjectMeta(this.directory, this.meta);
+  IdentifiedProjectMeta(this.directory, this.meta);
 }
 
 /// Application global project controller.
 class ProjectController {
-  final Map<String, _IdentifiedProjectMeta> _availableProjects;
+  final Map<String, IdentifiedProjectMeta> _availableProjects;
   final Map<String, Project> _openedProjects;
   StreamSubscription<ServerEvent>? _subscription;
 
@@ -60,13 +60,13 @@ class ProjectController {
   }
 
   /// Loads a single project meta entry from a [directory].
-  Future<_IdentifiedProjectMeta> _loadSingleMeta(Directory directory) async {
+  Future<IdentifiedProjectMeta> _loadSingleMeta(Directory directory) async {
     final meta = MetaDirectory(directory);
 
     final projectMeta =
         await meta.load("project", (data) => ProjectMeta.fromBuffer(data));
 
-    return _IdentifiedProjectMeta(directory, projectMeta);
+    return IdentifiedProjectMeta(directory, projectMeta);
   }
 
   void _onServerEvent(ServerEvent event) {
@@ -82,6 +82,7 @@ class ProjectController {
       _openedProjects.forEach((_, project) {
         if (project.controlledBy(event.client)) {
           project.clientDisconnected();
+          saveProject(project);
         }
       });
     }
@@ -93,8 +94,7 @@ class ProjectController {
       return Future.value(_openedProjects[name]);
     } else if (_availableProjects.containsKey(name)) {
       final identified = _availableProjects[name]!;
-      return _openProject(identified.directory, identified.meta)
-          .then((project) {
+      return _openProject(identified).then((project) {
         UIMessenger.send(ShowProjectRequest(project));
         return _openedProjects[name] = project;
       });
@@ -104,10 +104,10 @@ class ProjectController {
   }
 
   /// Opens a project and loads it from the file system.
-  Future<Project> _openProject(Directory directory, ProjectMeta meta) {
+  Future<Project> _openProject(IdentifiedProjectMeta identifiedMeta) {
     // final meta = MetaDirectory(directory);
 
-    return Future.value(Project(meta: meta));
+    return Future.value(Project(meta: identifiedMeta));
   }
 
   /// Creates a project by dispatching a creation request to the UI.
@@ -136,9 +136,22 @@ class ProjectController {
     final projectMeta = ProjectMeta(name: name);
     await metaDirectory.save("project", projectMeta);
 
-    _availableProjects[name] =
-        _IdentifiedProjectMeta(newProjectDirectory, projectMeta);
-    return Project(meta: projectMeta);
+    final identifiedMeta =
+        IdentifiedProjectMeta(newProjectDirectory, projectMeta);
+
+    _availableProjects[name] = identifiedMeta;
+    return Project(meta: identifiedMeta);
+  }
+
+  /// Saves a project
+  Future<void> saveProject(Project project) async {
+    final identifiedMeta = project.prepareForSave();
+    final metaDirectory = MetaDirectory(identifiedMeta.directory);
+    await metaDirectory.save("project", identifiedMeta.meta);
+  }
+
+  Future<void> saveAll() async {
+    await Future.wait(_openedProjects.values.map(saveProject));
   }
 
   /// Retrieves the directory to save projects into

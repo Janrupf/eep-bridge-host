@@ -1,18 +1,32 @@
 import 'package:eep_bridge_host/components/slim_icon_button.dart';
+import 'package:eep_bridge_host/project/controller.dart';
 import 'package:eep_bridge_host/project/layout.dart';
 import 'package:eep_bridge_host/project/project.dart';
 import 'package:eep_bridge_host/views/layout/layout_canvas.dart';
 import 'package:eep_bridge_host/views/layout/layout_canvas_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
-class LayoutEditor extends StatelessWidget {
+class LayoutEditor extends StatefulWidget {
   final LayoutCanvasController _controller;
   final Project project;
 
   LayoutEditor({Key? key, required this.project})
       : _controller = LayoutCanvasController(project.layout),
         super(key: key);
+
+  @override
+  State<LayoutEditor> createState() => _LayoutEditorState();
+}
+
+class _LayoutEditorState extends State<LayoutEditor> {
+  @override
+  void deactivate() {
+    Provider.of<ProjectController>(context, listen: false)
+        .saveProject(widget.project);
+    super.deactivate();
+  }
 
   @override
   Widget build(BuildContext context) => Expanded(
@@ -32,7 +46,7 @@ class LayoutEditor extends StatelessWidget {
               Flexible(
                   fit: FlexFit.tight,
                   child: LayoutCanvas(
-                    controller: _controller,
+                    controller: widget._controller,
                   ))
             ],
           ),
@@ -72,7 +86,7 @@ class LayoutEditor extends StatelessWidget {
             SlimIconButton(
               icon: Icons.control_camera,
               label: Intl.message("Center view"),
-              onPressed: () => _controller.pan = Offset(0, 0),
+              onPressed: () => widget._controller.pan = Offset(0, 0),
             )
           ],
         ),
@@ -86,8 +100,9 @@ class LayoutEditor extends StatelessWidget {
       );
 
   void _addGhostedNode(NodeType type, String name) {
-    final realNode = project.layout.makeNewNode(type, name);
+    final realNode = widget.project.layout.makeNewNode(type, name);
 
-    _controller.addNode(VisualLayoutNode.ghosted(underlyingNode: realNode));
+    widget._controller
+        .addNode(VisualLayoutNode.ghosted(underlyingNode: realNode));
   }
 }

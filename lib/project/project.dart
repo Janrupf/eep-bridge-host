@@ -1,16 +1,16 @@
 import 'dart:async';
 
 import 'package:eep_bridge_host/network/bridge_client.dart';
+import 'package:eep_bridge_host/project/controller.dart';
 import 'package:eep_bridge_host/project/event/project_events.dart';
 import 'package:eep_bridge_host/project/layout.dart';
 import 'package:eep_bridge_host/protogen/network/packets.pb.dart';
-import 'package:eep_bridge_host/protogen/project/project.pb.dart';
 import 'package:protobuf/protobuf.dart';
 
 /// Representation of an opened project.
 class Project {
   /// Metadata of the project
-  final ProjectMeta meta;
+  final IdentifiedProjectMeta _identifiedMeta;
 
   final StreamController<ProjectEvent> _eventController;
 
@@ -24,12 +24,13 @@ class Project {
 
   late final Layout layout;
 
-  Project({required this.meta})
-      : _eventController = StreamController.broadcast(),
+  Project({required IdentifiedProjectMeta meta})
+      : _identifiedMeta = meta,
+        _eventController = StreamController.broadcast(),
         _client = null,
         _currentSubscription = null,
         _paused = true {
-    this.layout = Layout(meta.layout);
+    this.layout = Layout(_identifiedMeta.meta.layout);
   }
 
   /// Called when a client controlling this project has connected.
@@ -102,6 +103,11 @@ class Project {
       objectId: sw,
       state: state,
     ));
+  }
+
+  IdentifiedProjectMeta prepareForSave() {
+    _identifiedMeta.meta.layout = layout.toMeta();
+    return _identifiedMeta;
   }
 
   bool get paused => _paused;
