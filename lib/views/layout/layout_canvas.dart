@@ -337,11 +337,19 @@ class _LayoutCanvasPainter extends CustomPainter {
 
     canvas.restore();
 
+    final currentLeftX = -pan.value.dx / scale.value;
+    final currentRightX = (-pan.value.dx + size.width) / scale.value;
+
+    final currentTopY = -pan.value.dy / scale.value;
+    final currentBottomY = (-pan.value.dy + size.height) / scale.value;
+
     bool borderWarning = nodes.any((node) =>
-        node.position.dx <= 20 ||
-        node.position.dy <= 20 ||
-        size.width - node.position.dx <= 20 ||
-        size.height - node.position.dy <= 20);
+        (node.state == _LayoutNodeState.ghosted ||
+            node.state == _LayoutNodeState.dragged) &&
+        (node.position.dx - 20 <= currentLeftX ||
+            node.position.dx + 20 >= currentRightX ||
+            node.position.dy - 20 <= currentTopY ||
+            node.position.dy + 20 >= currentBottomY));
 
     final borderPaint = Paint()
       ..color = borderWarning ? Colors.red : Colors.white.withAlpha(100)
