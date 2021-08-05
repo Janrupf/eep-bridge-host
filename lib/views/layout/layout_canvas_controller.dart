@@ -64,6 +64,13 @@ class LayoutCanvasController {
 
   Offset get pan => _pan;
 
+  set pan(Offset offset) {
+    if(_pan != offset) {
+      _pan = offset;
+      _redraw();
+    }
+  }
+
   void doStartPan(Offset panPosition) {
     _setNodeStateAt(panPosition, LayoutNodeState.dragged);
   }

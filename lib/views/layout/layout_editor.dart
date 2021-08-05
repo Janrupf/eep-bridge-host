@@ -23,7 +23,7 @@ class LayoutEditor extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             children: [
               Padding(
-                padding: EdgeInsets.only(left: 20),
+                padding: EdgeInsets.only(left: 20, top: 20, bottom: 20),
                 child: _buildControlColumn(context),
               ),
               Flexible(
@@ -41,6 +41,7 @@ class LayoutEditor extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Spacer(),
             SlimIconButton(
               icon: Icons.train,
               label: Intl.message("Add passenger station"),
@@ -72,6 +73,12 @@ class LayoutEditor extends StatelessWidget {
               label: Intl.message("Add train storage"),
               onPressed: () {},
             ),
+            Spacer(),
+            SlimIconButton(
+              icon: Icons.control_camera,
+              label: Intl.message("Center"),
+              onPressed: () => _controller.pan = Offset(0, 0),
+            )
           ],
         ),
       );
