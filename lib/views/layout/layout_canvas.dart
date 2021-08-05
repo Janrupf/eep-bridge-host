@@ -1,20 +1,15 @@
 import 'dart:math' as math;
 
-import 'package:eep_bridge_host/logging/logger.dart';
-import 'package:eep_bridge_host/util/extended_math.dart' as ex_math;
-import 'package:eep_bridge_host/util/iteratable_extension.dart';
-import 'package:eep_bridge_host/util/reference.dart';
+import 'package:eep_bridge_host/views/layout/layout_canvas_controller.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 class LayoutCanvas extends StatefulWidget {
-  final List<LayoutNode> nodes;
-  final NoValueChangeNotifier changeNotifier;
+  final LayoutCanvasController controller;
 
   const LayoutCanvas({
     Key? key,
-    required this.nodes,
-    required this.changeNotifier,
+    required this.controller,
   }) : super(key: key);
 
   @override
@@ -22,18 +17,11 @@ class LayoutCanvas extends StatefulWidget {
 }
 
 class _LayoutCanvasState extends State<LayoutCanvas> {
-  final Reference<double> _scale;
-  final Reference<Offset> _pan;
-
-  _LayoutCanvasState()
-      : _scale = Reference(1),
-        _pan = Reference(Offset(0, 0));
-
   @override
   void initState() {
     super.initState();
 
-    widget.nodes.addAll([
+    widget.controller.addNodes([
       LayoutNode(
           icon: Icons.train, label: "Station 0", position: Offset(100, 100)),
       LayoutNode(
@@ -47,66 +35,35 @@ class _LayoutCanvasState extends State<LayoutCanvas> {
   Widget build(BuildContext context) {
     final painter = _LayoutCanvasPainter(
         backgroundColor: Theme.of(context).colorScheme.secondary,
-        repaint: widget.changeNotifier,
-        nodes: widget.nodes,
-        scale: _scale,
-        pan: _pan);
+        controller: widget.controller);
 
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: MouseRegion(
         onEnter: (e) {
-          if (_updateGhostedNode(e.localPosition)) {
-            return;
-          }
-
-          _setNodeStateAt(e.localPosition, _LayoutNodeState.hover);
+          widget.controller.doHover(e.localPosition);
         },
         onExit: (e) {
-          _dropGhostedNode(null);
-          _resetNodeStates();
+          widget.controller.doExit();
         },
         onHover: (e) {
-          if (_updateGhostedNode(e.localPosition)) {
-            return;
-          }
-
-          _setNodeStateAt(e.localPosition, _LayoutNodeState.hover);
+          widget.controller.doHover(e.localPosition);
         },
         child: GestureDetector(
           onPanStart: (e) {
-            _setNodeStateAt(e.localPosition, _LayoutNodeState.dragged);
+            widget.controller.doStartPan(e.localPosition);
           },
           onPanUpdate: (e) {
-            final node = widget.nodes.firstWhereOrNull(
-                (node) => node.state == _LayoutNodeState.dragged);
-            if (node != null) {
-              final realOffset = _translateOffset(e.localPosition);
-
-              if (node.position != realOffset) {
-                node.position = realOffset;
-                _scheduleRedraw();
-              }
-            } else {
-              final newDX = _pan.value.dx + (e.delta.dx / _scale.value);
-              final newDY = _pan.value.dy + (e.delta.dy / _scale.value);
-
-              _pan.value = Offset(
-                ex_math.clamp(newDX, -2000, 2000),
-                ex_math.clamp(newDY, -2000, 2000),
-              );
-
-              _scheduleRedraw();
-            }
+            widget.controller.doPan(e.localPosition, e.delta);
           },
           onPanEnd: (e) {
-            _resetNodeStates();
+            widget.controller.doEndPan();
           },
           onTapUp: (e) {
-            _dropGhostedNode(e.localPosition);
+            widget.controller.doUp(e.localPosition);
           },
           onSecondaryTapUp: (e) {
-            final node = _findNodeAt(e.localPosition);
+            final node = widget.controller.findNodeAt(e.localPosition);
             if (node == null) {
               return;
             }
@@ -116,15 +73,7 @@ class _LayoutCanvasState extends State<LayoutCanvas> {
           child: Listener(
             onPointerSignal: (e) {
               if (e is PointerScrollEvent) {
-                _scale.value = _scale.value - (e.scrollDelta.dy / 106.0);
-
-                if (_scale.value < 0.4) {
-                  _scale.value = 0.4;
-                } else if (_scale.value > 3) {
-                  _scale.value = 3;
-                }
-
-                _scheduleRedraw();
+                widget.controller.scale -= (e.scrollDelta.dy / 106.0);
               }
             },
             child: RepaintBoundary(
@@ -138,93 +87,6 @@ class _LayoutCanvasState extends State<LayoutCanvas> {
         ),
       ),
     );
-  }
-
-  Offset _translateOffset(Offset offset) {
-    return Offset(offset.dx / _scale.value, offset.dy / _scale.value)
-        .translate(-_pan.value.dx, -_pan.value.dy);
-  }
-
-  LayoutNode? _findNodeAt(Offset offset) {
-    Offset realOffset = _translateOffset(offset);
-
-    return widget.nodes.firstWhereOrNull(
-        (node) => (node.position - realOffset).distance <= 20);
-  }
-
-  void _setNodeStateAt(Offset offset, _LayoutNodeState newState) {
-    final target = _findNodeAt(offset);
-    if (target == null) {
-      _resetNodeStates();
-      return;
-    }
-
-    bool needsRedraw = widget.nodes.map((node) {
-      if (node == target && target.state != newState) {
-        target.state = newState;
-        return true;
-      } else {
-        target.state = _LayoutNodeState.normal;
-        return false;
-      }
-    }).any((v) => v);
-
-    if (needsRedraw) {
-      _scheduleRedraw();
-    }
-  }
-
-  void _resetNodeStates() {
-    final needsRedraw = widget.nodes.map((node) {
-      if (node.state == _LayoutNodeState.normal) {
-        return false;
-      }
-
-      node.state = _LayoutNodeState.normal;
-      return true;
-    }).any((v) => v);
-
-    if (needsRedraw) {
-      _scheduleRedraw();
-    }
-  }
-
-  void _scheduleRedraw() {
-    widget.changeNotifier.notifyListeners();
-  }
-
-  bool _updateGhostedNode(Offset offset) {
-    final realOffset = _translateOffset(offset);
-
-    final node = widget.nodes
-        .firstWhereOrNull((node) => node.state == _LayoutNodeState.ghosted);
-    if (node == null) {
-      return false;
-    }
-
-    if (node.position != realOffset) {
-      node.position = realOffset;
-      _scheduleRedraw();
-    }
-
-    return true;
-  }
-
-  void _dropGhostedNode(Offset? offset) {
-    final node = widget.nodes
-        .firstWhereOrNull((node) => node.state == _LayoutNodeState.ghosted);
-    if (node == null) {
-      return;
-    }
-
-    if (offset == null) {
-      widget.nodes.remove(node);
-    } else {
-      node.position = _translateOffset(offset);
-      node.state = _LayoutNodeState.normal;
-    }
-
-    _scheduleRedraw();
   }
 
   void _showNodeEditMenu(Offset globalPosition, LayoutNode node) {
@@ -270,21 +132,13 @@ class _LayoutCanvasState extends State<LayoutCanvas> {
   }
 
   void _deleteNode(LayoutNode node) {
-    if (!widget.nodes.contains(node)) {
-      Logger.warn("Tried to delete a nonexistent layout node");
-      return;
-    }
-
-    widget.nodes.remove(node);
-    _scheduleRedraw();
+    widget.controller.removeNode(node);
   }
 }
 
 class _LayoutCanvasPainter extends CustomPainter {
   final Color backgroundColor;
-  final List<LayoutNode> nodes;
-  final Reference<double> scale;
-  final Reference<Offset> pan;
+  final LayoutCanvasController controller;
 
   final TextStyle _normalTextStyle;
   final Paint _normalPaint;
@@ -295,17 +149,14 @@ class _LayoutCanvasPainter extends CustomPainter {
   static const double GRID_SPACING = 45.0;
 
   _LayoutCanvasPainter({
-    Listenable? repaint,
     required this.backgroundColor,
-    required this.nodes,
-    required this.scale,
-    required this.pan,
+    required this.controller,
   })  : _normalTextStyle = TextStyle(color: Colors.white, fontSize: 15),
         _normalPaint = _makePaint(Colors.white),
         _hoverPaint = _makePaint(Colors.orange),
         _dragPaint = _makePaint(Colors.yellow),
         _ghostedPaint = _makePaint(Colors.grey.withAlpha(127)),
-        super(repaint: repaint);
+        super(repaint: controller.redrawNotifier);
 
   static Paint _makePaint(Color color) => Paint()
     ..style = PaintingStyle.stroke
@@ -328,24 +179,24 @@ class _LayoutCanvasPainter extends CustomPainter {
     canvas.save();
 
     canvas.clipRRect(areaRRect);
-    canvas.scale(scale.value);
-    canvas.translate(pan.value.dx, pan.value.dy);
+    canvas.scale(controller.scale);
+    canvas.translate(controller.pan.dx, controller.pan.dy);
     _drawGrid(canvas, size);
 
     // _drawLineBetweenNodes(canvas, nodes[0], nodes[1]);
-    nodes.forEach((node) => _drawNode(canvas, node));
+    controller.nodes.forEach((node) => _drawNode(canvas, node));
 
     canvas.restore();
 
-    final currentLeftX = -pan.value.dx / scale.value;
-    final currentRightX = (-pan.value.dx + size.width) / scale.value;
+    final currentLeftX = -controller.pan.dx / controller.scale;
+    final currentRightX = (-controller.pan.dx + size.width) / controller.scale;
 
-    final currentTopY = -pan.value.dy / scale.value;
-    final currentBottomY = (-pan.value.dy + size.height) / scale.value;
+    final currentTopY = -controller.pan.dy / controller.scale;
+    final currentBottomY = (-controller.pan.dy + size.height) / controller.scale;
 
-    bool borderWarning = nodes.any((node) =>
-        (node.state == _LayoutNodeState.ghosted ||
-            node.state == _LayoutNodeState.dragged) &&
+    bool borderWarning = controller.nodes.any((node) =>
+        (node.state == LayoutNodeState.ghosted ||
+            node.state == LayoutNodeState.dragged) &&
         (node.position.dx - 20 <= currentLeftX ||
             node.position.dx + 20 >= currentRightX ||
             node.position.dy - 20 <= currentTopY ||
@@ -365,11 +216,11 @@ class _LayoutCanvasPainter extends CustomPainter {
   void _drawGrid(Canvas canvas, Size size) {
     final gridPaint = Paint()..color = Colors.grey.shade700;
 
-    final realWidth = size.width / scale.value;
-    final realHeight = size.height / scale.value;
+    final realWidth = size.width / controller.scale;
+    final realHeight = size.height / controller.scale;
 
-    final horizontalOffsettedCellCount = (pan.value.dx ~/ GRID_SPACING).toInt();
-    final verticalOffsettedCellCount = (pan.value.dy ~/ GRID_SPACING).toInt();
+    final horizontalOffsettedCellCount = controller.pan.dx ~/ GRID_SPACING;
+    final verticalOffsettedCellCount = controller.pan.dy ~/ GRID_SPACING;
 
     int horizontalCellCount = realWidth ~/ GRID_SPACING;
     double startX = (realWidth / 2) -
@@ -435,16 +286,16 @@ class _LayoutCanvasPainter extends CustomPainter {
             : b;
 
     switch (important.state) {
-      case _LayoutNodeState.normal:
+      case LayoutNodeState.normal:
         return _normalPaint;
 
-      case _LayoutNodeState.hover:
+      case LayoutNodeState.hover:
         return _hoverPaint;
 
-      case _LayoutNodeState.dragged:
+      case LayoutNodeState.dragged:
         return _dragPaint;
 
-      case _LayoutNodeState.ghosted:
+      case LayoutNodeState.ghosted:
         return _ghostedPaint;
     }
   }
@@ -511,21 +362,21 @@ class NoValueChangeNotifier extends ChangeNotifier {
   }
 }
 
-enum _LayoutNodeState { normal, hover, dragged, ghosted }
+enum LayoutNodeState { normal, hover, dragged, ghosted }
 
-extension _LayoutNodeStateExtension on _LayoutNodeState {
+extension _LayoutNodeStateExtension on LayoutNodeState {
   int toPriority() {
     switch (this) {
-      case _LayoutNodeState.normal:
+      case LayoutNodeState.normal:
         return 1;
 
-      case _LayoutNodeState.hover:
+      case LayoutNodeState.hover:
         return 2;
 
-      case _LayoutNodeState.dragged:
+      case LayoutNodeState.dragged:
         return 3;
 
-      case _LayoutNodeState.ghosted:
+      case LayoutNodeState.ghosted:
         return -1;
     }
   }
@@ -535,17 +386,17 @@ class LayoutNode {
   Offset position;
   IconData icon;
   String label;
-  _LayoutNodeState state;
+  LayoutNodeState state;
 
   LayoutNode({
     required this.position,
     required this.icon,
     required this.label,
-  }) : state = _LayoutNodeState.normal;
+  }) : state = LayoutNodeState.normal;
 
   LayoutNode.ghosted({
     required this.position,
     required this.icon,
     required this.label,
-  }) : state = _LayoutNodeState.ghosted;
+  }) : state = LayoutNodeState.ghosted;
 }

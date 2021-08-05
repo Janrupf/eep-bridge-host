@@ -1,13 +1,14 @@
+import 'package:eep_bridge_host/components/slim_icon_button.dart';
 import 'package:eep_bridge_host/views/layout/layout_canvas.dart';
+import 'package:eep_bridge_host/views/layout/layout_canvas_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class LayoutEditor extends StatelessWidget {
-  final NoValueChangeNotifier _changeNotifier;
-  final List<LayoutNode> _nodes;
+  final LayoutCanvasController _controller;
 
   LayoutEditor({Key? key})
-      : _changeNotifier = NoValueChangeNotifier(),
-        _nodes = [],
+      : _controller = LayoutCanvasController(),
         super(key: key);
 
   @override
@@ -28,8 +29,7 @@ class LayoutEditor extends StatelessWidget {
               Flexible(
                   fit: FlexFit.tight,
                   child: LayoutCanvas(
-                    changeNotifier: _changeNotifier,
-                    nodes: _nodes,
+                    controller: _controller,
                   ))
             ],
           ),
@@ -41,55 +41,35 @@ class LayoutEditor extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Icon(Icons.train),
-                    SizedBox(width: 5,),
-                    Text("Add station", style: Theme.of(context).textTheme.bodyText1,),
-                  ],
-                ),
-              ),
+            SlimIconButton(
+              icon: Icons.train,
+              label: Intl.message("Add passenger station"),
               onPressed: () {
-                _nodes.add(
+                _controller.addNode(
                   LayoutNode.ghosted(
                     position: Offset(20, 20),
                     icon: Icons.train,
                     label: "Station 3",
                   ),
                 );
-
-                _changeNotifier.notifyListeners();
               },
             ),
             SizedBox(height: 10),
-            ElevatedButton(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Icon(Icons.switch_right),
-                    SizedBox(width: 5,),
-                    Text("Add intersection", style: Theme.of(context).textTheme.bodyText1,),
-                  ],
-                ),
-              ),
+            SlimIconButton(
+              icon: Icons.local_shipping,
+              label: Intl.message("Add cargo station"),
               onPressed: () {},
             ),
             SizedBox(height: 10),
-            ElevatedButton(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Icon(Icons.bedtime),
-                    SizedBox(width: 5,),
-                    Text("Add train storage", style: Theme.of(context).textTheme.bodyText1,),
-                  ],
-                ),
-              ),
+            SlimIconButton(
+              icon: Icons.switch_right,
+              label: Intl.message("Add intersection"),
+              onPressed: () {},
+            ),
+            SizedBox(height: 10),
+            SlimIconButton(
+              icon: Icons.bedtime,
+              label: Intl.message("Add train storage"),
               onPressed: () {},
             ),
           ],
