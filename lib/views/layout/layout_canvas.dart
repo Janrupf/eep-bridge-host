@@ -1,7 +1,10 @@
 import 'dart:math' as math;
 
 import 'package:eep_bridge_host/logging/logger.dart';
+import 'package:eep_bridge_host/util/extended_math.dart' as ex_math;
 import 'package:eep_bridge_host/util/iteratable_extension.dart';
+import 'package:eep_bridge_host/util/reference.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 class LayoutCanvas extends StatefulWidget {
@@ -19,6 +22,13 @@ class LayoutCanvas extends StatefulWidget {
 }
 
 class _LayoutCanvasState extends State<LayoutCanvas> {
+  final Reference<double> _scale;
+  final Reference<Offset> _pan;
+
+  _LayoutCanvasState()
+      : _scale = Reference(1),
+        _pan = Reference(Offset(0, 0));
+
   @override
   void initState() {
     super.initState();
@@ -36,10 +46,11 @@ class _LayoutCanvasState extends State<LayoutCanvas> {
   @override
   Widget build(BuildContext context) {
     final painter = _LayoutCanvasPainter(
-      backgroundColor: Theme.of(context).colorScheme.secondary,
-      repaint: widget.changeNotifier,
-      nodes: widget.nodes,
-    );
+        backgroundColor: Theme.of(context).colorScheme.secondary,
+        repaint: widget.changeNotifier,
+        nodes: widget.nodes,
+        scale: _scale,
+        pan: _pan);
 
     return Padding(
       padding: const EdgeInsets.all(20.0),
@@ -69,8 +80,22 @@ class _LayoutCanvasState extends State<LayoutCanvas> {
           onPanUpdate: (e) {
             final node = widget.nodes.firstWhereOrNull(
                 (node) => node.state == _LayoutNodeState.dragged);
-            if (node != null && node.position != e.localPosition) {
-              node.position = e.localPosition;
+            if (node != null) {
+              final realOffset = _translateOffset(e.localPosition);
+
+              if (node.position != realOffset) {
+                node.position = realOffset;
+                _scheduleRedraw();
+              }
+            } else {
+              final newDX = _pan.value.dx + (e.delta.dx / _scale.value);
+              final newDY = _pan.value.dy + (e.delta.dy / _scale.value);
+
+              _pan.value = Offset(
+                ex_math.clamp(newDX, -2000, 2000),
+                ex_math.clamp(newDY, -2000, 2000),
+              );
+
               _scheduleRedraw();
             }
           },
@@ -88,10 +113,26 @@ class _LayoutCanvasState extends State<LayoutCanvas> {
 
             _showNodeEditMenu(e.globalPosition, node);
           },
-          child: RepaintBoundary(
-            child: CustomPaint(
-              willChange: true,
-              painter: painter,
+          child: Listener(
+            onPointerSignal: (e) {
+              if (e is PointerScrollEvent) {
+                _scale.value = _scale.value - (e.scrollDelta.dy / 106.0);
+
+                if (_scale.value < 0.4) {
+                  _scale.value = 0.4;
+                } else if (_scale.value > 3) {
+                  _scale.value = 3;
+                }
+
+                _scheduleRedraw();
+              }
+            },
+            child: RepaintBoundary(
+              child: CustomPaint(
+                willChange: true,
+                isComplex: true,
+                painter: painter,
+              ),
             ),
           ),
         ),
@@ -99,9 +140,16 @@ class _LayoutCanvasState extends State<LayoutCanvas> {
     );
   }
 
+  Offset _translateOffset(Offset offset) {
+    return Offset(offset.dx / _scale.value, offset.dy / _scale.value)
+        .translate(-_pan.value.dx, -_pan.value.dy);
+  }
+
   LayoutNode? _findNodeAt(Offset offset) {
-    return widget.nodes
-        .firstWhereOrNull((node) => (node.position - offset).distance <= 20);
+    Offset realOffset = _translateOffset(offset);
+
+    return widget.nodes.firstWhereOrNull(
+        (node) => (node.position - realOffset).distance <= 20);
   }
 
   void _setNodeStateAt(Offset offset, _LayoutNodeState newState) {
@@ -146,14 +194,16 @@ class _LayoutCanvasState extends State<LayoutCanvas> {
   }
 
   bool _updateGhostedNode(Offset offset) {
+    final realOffset = _translateOffset(offset);
+
     final node = widget.nodes
         .firstWhereOrNull((node) => node.state == _LayoutNodeState.ghosted);
     if (node == null) {
       return false;
     }
 
-    if (node.position != offset) {
-      node.position = offset;
+    if (node.position != realOffset) {
+      node.position = realOffset;
       _scheduleRedraw();
     }
 
@@ -170,7 +220,7 @@ class _LayoutCanvasState extends State<LayoutCanvas> {
     if (offset == null) {
       widget.nodes.remove(node);
     } else {
-      node.position = offset;
+      node.position = _translateOffset(offset);
       node.state = _LayoutNodeState.normal;
     }
 
@@ -181,7 +231,8 @@ class _LayoutCanvasState extends State<LayoutCanvas> {
     showMenu(
       color: Theme.of(context).colorScheme.primary,
       context: context,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10))),
       position: RelativeRect.fromLTRB(
         globalPosition.dx,
         globalPosition.dy,
@@ -189,26 +240,37 @@ class _LayoutCanvasState extends State<LayoutCanvas> {
         0,
       ),
       items: [
-        PopupMenuItem(child: Row(
-          children: [
-            Icon(Icons.build),
-            SizedBox(width: 3,),
-            Text("Edit"),
-          ],
-        ), height: 30,),
-        PopupMenuItem(child: Row(
-          children: [
-            Icon(Icons.delete),
-            SizedBox(width: 3,),
-            Text("Delete"),
-          ],
-        ), height: 30, onTap: () => _deleteNode(node),),
+        PopupMenuItem(
+          child: Row(
+            children: [
+              Icon(Icons.build),
+              SizedBox(
+                width: 3,
+              ),
+              Text("Edit"),
+            ],
+          ),
+          height: 30,
+        ),
+        PopupMenuItem(
+          child: Row(
+            children: [
+              Icon(Icons.delete),
+              SizedBox(
+                width: 3,
+              ),
+              Text("Delete"),
+            ],
+          ),
+          height: 30,
+          onTap: () => _deleteNode(node),
+        ),
       ],
     );
   }
 
   void _deleteNode(LayoutNode node) {
-    if(!widget.nodes.contains(node)) {
+    if (!widget.nodes.contains(node)) {
       Logger.warn("Tried to delete a nonexistent layout node");
       return;
     }
@@ -220,6 +282,10 @@ class _LayoutCanvasState extends State<LayoutCanvas> {
 
 class _LayoutCanvasPainter extends CustomPainter {
   final Color backgroundColor;
+  final List<LayoutNode> nodes;
+  final Reference<double> scale;
+  final Reference<Offset> pan;
+
   final TextStyle _normalTextStyle;
   final Paint _normalPaint;
   final Paint _hoverPaint;
@@ -228,12 +294,12 @@ class _LayoutCanvasPainter extends CustomPainter {
 
   static const double GRID_SPACING = 45.0;
 
-  final List<LayoutNode> nodes;
-
   _LayoutCanvasPainter({
     Listenable? repaint,
     required this.backgroundColor,
     required this.nodes,
+    required this.scale,
+    required this.pan,
   })  : _normalTextStyle = TextStyle(color: Colors.white, fontSize: 15),
         _normalPaint = _makePaint(Colors.white),
         _hoverPaint = _makePaint(Colors.orange),
@@ -262,8 +328,10 @@ class _LayoutCanvasPainter extends CustomPainter {
     canvas.save();
 
     canvas.clipRRect(areaRRect);
-
+    canvas.scale(scale.value);
+    canvas.translate(pan.value.dx, pan.value.dy);
     _drawGrid(canvas, size);
+
     // _drawLineBetweenNodes(canvas, nodes[0], nodes[1]);
     nodes.forEach((node) => _drawNode(canvas, node));
 
@@ -289,22 +357,38 @@ class _LayoutCanvasPainter extends CustomPainter {
   void _drawGrid(Canvas canvas, Size size) {
     final gridPaint = Paint()..color = Colors.grey.shade700;
 
-    int horizontalCellCount = size.width ~/ GRID_SPACING;
-    double startX = (size.width / 2) -
-        (GRID_SPACING / 2) -
-        (((horizontalCellCount - 1) / 2) * GRID_SPACING);
+    final realWidth = size.width / scale.value;
+    final realHeight = size.height / scale.value;
 
-    for (double x = startX; x < size.width; x += GRID_SPACING) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), gridPaint);
+    final horizontalOffsettedCellCount = (pan.value.dx ~/ GRID_SPACING).toInt();
+    final verticalOffsettedCellCount = (pan.value.dy ~/ GRID_SPACING).toInt();
+
+    int horizontalCellCount = realWidth ~/ GRID_SPACING;
+    double startX = (realWidth / 2) -
+        (GRID_SPACING / 2) -
+        (((horizontalCellCount + 1) / 2) * GRID_SPACING) -
+        (horizontalOffsettedCellCount * GRID_SPACING) -
+        GRID_SPACING;
+
+    int verticalCellCount = realHeight ~/ GRID_SPACING;
+    double startY = (realHeight / 2) -
+        (GRID_SPACING / 2) -
+        (((verticalCellCount + 1) / 2) * GRID_SPACING) -
+        (verticalOffsettedCellCount * GRID_SPACING) -
+        GRID_SPACING;
+
+    for (double x = startX;
+        x < startX + realWidth + GRID_SPACING * 2;
+        x += GRID_SPACING) {
+      canvas.drawLine(Offset(x, startY),
+          Offset(x, startY + realHeight + GRID_SPACING * 3), gridPaint);
     }
 
-    int verticalCellCount = size.height ~/ GRID_SPACING;
-    double startY = (size.height / 2) -
-        (GRID_SPACING / 2) -
-        (((verticalCellCount - 1) / 2) * GRID_SPACING);
-
-    for (double y = startY; y < size.height; y += GRID_SPACING) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
+    for (double y = startY;
+        y < startY + realHeight + GRID_SPACING * 2;
+        y += GRID_SPACING) {
+      canvas.drawLine(Offset(startX, y),
+          Offset(startX + realWidth + GRID_SPACING * 3, y), gridPaint);
     }
   }
 
