@@ -23,6 +23,9 @@ jobs:
           copy C:\Windows\System32\msvcp140.dll build\windows\runner\release\msvcp140.dll
           copy C:\Windows\System32\vcruntime140.dll build\windows\runner\release\vcruntime140.dll
           copy C:\Windows\System32\vcruntime140_1.dll build\windows\runner\release\vcruntime140_1.dll
+      - name: Copy resources to dist
+        run: |
+          copy "assets\utility\EEP Bridge Host.lnk" "build\windows\runner\release\EEP Bridge Host.lnk"
       - name: Upload build
         uses: actions/upload-artifact@v2
         with:
