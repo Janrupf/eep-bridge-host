@@ -1,9 +1,14 @@
 syntax = "proto3";
 
+import "project/layout.proto";
+
 package net.janrupf.eep.project;
 
 /// Project structure
 message ProjectMeta {
   /// The name of the project
   string name = 1;
+
+  /// The layout of the project
+  LayoutMeta layout = 2;
 }

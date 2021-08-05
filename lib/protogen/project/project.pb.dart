@@ -9,19 +9,26 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
+import 'layout.pb.dart' as $0;
+
 class ProjectMeta extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ProjectMeta', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'net.janrupf.eep.project'), createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
+    ..aOM<$0.LayoutMeta>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'layout', subBuilder: $0.LayoutMeta.create)
     ..hasRequiredFields = false
   ;
 
   ProjectMeta._() : super();
   factory ProjectMeta({
     $core.String? name,
+    $0.LayoutMeta? layout,
   }) {
     final _result = create();
     if (name != null) {
       _result.name = name;
+    }
+    if (layout != null) {
+      _result.layout = layout;
     }
     return _result;
   }
@@ -54,5 +61,16 @@ class ProjectMeta extends $pb.GeneratedMessage {
   $core.bool hasName() => $_has(0);
   @$pb.TagNumber(1)
   void clearName() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $0.LayoutMeta get layout => $_getN(1);
+  @$pb.TagNumber(2)
+  set layout($0.LayoutMeta v) { setField(2, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasLayout() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearLayout() => clearField(2);
+  @$pb.TagNumber(2)
+  $0.LayoutMeta ensureLayout() => $_ensure(1);
 }
 

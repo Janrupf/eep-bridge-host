@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:eep_bridge_host/network/bridge_client.dart';
 import 'package:eep_bridge_host/project/event/project_events.dart';
+import 'package:eep_bridge_host/project/layout.dart';
 import 'package:eep_bridge_host/protogen/network/packets.pb.dart';
 import 'package:eep_bridge_host/protogen/project/project.pb.dart';
 import 'package:protobuf/protobuf.dart';
@@ -21,11 +22,15 @@ class Project {
   /// Current subscription to an event stream, if any
   StreamSubscription<GeneratedMessage>? _currentSubscription;
 
+  late final Layout layout;
+
   Project({required this.meta})
       : _eventController = StreamController.broadcast(),
         _client = null,
         _currentSubscription = null,
-        _paused = true;
+        _paused = true {
+    this.layout = Layout(meta.layout);
+  }
 
   /// Called when a client controlling this project has connected.
   void clientConnected(BridgeClient client) {

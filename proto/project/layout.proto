@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package net.janrupf.eep.project;
+
+enum NodeTypeMeta {
+  STATION = 0;
+  FREIGHT_YARD = 1;
+  INTERSECTION = 2;
+  TRAIN_STORAGE = 3;
+}
+
+message NodePositionMeta {
+  double x = 1;
+  double y = 2;
+}
+
+message LayoutNodeMeta {
+  NodePositionMeta position = 1;
+  NodeTypeMeta type = 2;
+  string uuid = 3;
+}
+
+message LayoutMeta {
+  repeated LayoutNodeMeta nodes = 1;
+}
