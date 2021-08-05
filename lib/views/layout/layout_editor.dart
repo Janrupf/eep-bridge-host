@@ -1,4 +1,6 @@
 import 'package:eep_bridge_host/components/slim_icon_button.dart';
+import 'package:eep_bridge_host/project/layout.dart';
+import 'package:eep_bridge_host/project/project.dart';
 import 'package:eep_bridge_host/views/layout/layout_canvas.dart';
 import 'package:eep_bridge_host/views/layout/layout_canvas_controller.dart';
 import 'package:flutter/material.dart';
@@ -6,9 +8,10 @@ import 'package:intl/intl.dart';
 
 class LayoutEditor extends StatelessWidget {
   final LayoutCanvasController _controller;
+  final Project project;
 
-  LayoutEditor({Key? key})
-      : _controller = LayoutCanvasController(),
+  LayoutEditor({Key? key, required this.project})
+      : _controller = LayoutCanvasController(project.layout),
         super(key: key);
 
   @override
@@ -43,25 +46,25 @@ class LayoutEditor extends StatelessWidget {
           children: [
             Spacer(),
             _nodeAddButton(
-              Icons.train,
+              NodeType.station,
               Intl.message("Add station"),
               Intl.message("New station"),
             ),
             SizedBox(height: 10),
             _nodeAddButton(
-              Icons.local_shipping,
+              NodeType.freight_yard,
               Intl.message("Add freight yard"),
               Intl.message("New freight yard"),
             ),
             SizedBox(height: 10),
             _nodeAddButton(
-              Icons.switch_right,
+              NodeType.intersection,
               Intl.message("Add intersection"),
               Intl.message("New intersection"),
             ),
             SizedBox(height: 10),
             _nodeAddButton(
-              Icons.bedtime,
+              NodeType.train_storage,
               Intl.message("Add train storage"),
               Intl.message("New train storage"),
             ),
@@ -75,15 +78,16 @@ class LayoutEditor extends StatelessWidget {
         ),
       );
 
-  Widget _nodeAddButton(IconData icon, String label, String newNodeName) =>
+  Widget _nodeAddButton(NodeType type, String label, String newNodeName) =>
       SlimIconButton(
-        icon: icon,
+        icon: type.toIcon(),
         label: label,
-        onPressed: () => _addGhostedNode(icon, newNodeName),
+        onPressed: () => _addGhostedNode(type, newNodeName),
       );
 
-  void _addGhostedNode(IconData icon, String name) {
-    _controller.addNode(LayoutNode.ghosted(
-        position: Offset(-4000, -4000), icon: icon, label: name));
+  void _addGhostedNode(NodeType type, String name) {
+    final realNode = project.layout.makeNewNode(type, name);
+
+    _controller.addNode(VisualLayoutNode.ghosted(underlyingNode: realNode));
   }
 }

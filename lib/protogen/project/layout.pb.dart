@@ -79,6 +79,7 @@ class LayoutNodeMeta extends $pb.GeneratedMessage {
     ..aOM<NodePositionMeta>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'position', subBuilder: NodePositionMeta.create)
     ..e<NodeTypeMeta>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'type', $pb.PbFieldType.OE, defaultOrMaker: NodeTypeMeta.STATION, valueOf: NodeTypeMeta.valueOf, enumValues: NodeTypeMeta.values)
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'uuid')
+    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..hasRequiredFields = false
   ;
 
@@ -87,6 +88,7 @@ class LayoutNodeMeta extends $pb.GeneratedMessage {
     NodePositionMeta? position,
     NodeTypeMeta? type,
     $core.String? uuid,
+    $core.String? name,
   }) {
     final _result = create();
     if (position != null) {
@@ -97,6 +99,9 @@ class LayoutNodeMeta extends $pb.GeneratedMessage {
     }
     if (uuid != null) {
       _result.uuid = uuid;
+    }
+    if (name != null) {
+      _result.name = name;
     }
     return _result;
   }
@@ -149,6 +154,15 @@ class LayoutNodeMeta extends $pb.GeneratedMessage {
   $core.bool hasUuid() => $_has(2);
   @$pb.TagNumber(3)
   void clearUuid() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get name => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set name($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasName() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearName() => clearField(4);
 }
 
 class LayoutMeta extends $pb.GeneratedMessage {

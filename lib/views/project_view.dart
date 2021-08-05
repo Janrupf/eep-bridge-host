@@ -43,7 +43,9 @@ class _ProjectViewState extends State<ProjectView> {
       _ProjectViewSidebarEntry(
         icon: Icons.map,
         text: Intl.message("Layout"),
-        builder: (context) => LayoutEditor(),
+        builder: (context) => LayoutEditor(
+          project: widget.project,
+        ),
       ),
       _ProjectViewSidebarEntry(
         icon: Icons.departure_board_outlined,

@@ -18,6 +18,7 @@ message LayoutNodeMeta {
   NodePositionMeta position = 1;
   NodeTypeMeta type = 2;
   string uuid = 3;
+  string name = 4;
 }
 
 message LayoutMeta {

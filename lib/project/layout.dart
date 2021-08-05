@@ -9,6 +9,24 @@ enum NodeType {
   train_storage
 }
 
+extension NodeTypeMethods on NodeType {
+  IconData toIcon() {
+    switch(this) {
+      case NodeType.station:
+        return Icons.train;
+
+      case NodeType.freight_yard:
+        return Icons.local_shipping;
+
+      case NodeType.intersection:
+        return Icons.switch_right;
+
+      case NodeType.train_storage:
+        return Icons.bedtime;
+    }
+  }
+}
+
 class Layout {
   List<LayoutNode> nodes;
 
@@ -18,10 +36,25 @@ class Layout {
     final nodes = <LayoutNode>[];
 
     for(final node in meta.nodes) {
-      nodes.add(LayoutNode(node));
+      nodes.add(LayoutNode.fromMeta(node));
     }
 
     return Layout._(nodes: nodes);
+  }
+
+  LayoutNode makeNewNode(NodeType type, String name) {
+    final uuid = Uuid().v4obj();
+
+    final node = LayoutNode(
+      position: Offset(0, 0),
+      type: type,
+      uuid: uuid,
+      name: name
+    );
+
+    nodes.add(node);
+
+    return node;
   }
 }
 
@@ -29,10 +62,11 @@ class LayoutNode {
   Offset position;
   NodeType type;
   UuidValue uuid;
+  String name;
 
-  LayoutNode._({required this.position, required this.type, required this.uuid});
+  LayoutNode({required this.position, required this.type, required this.uuid, required this.name});
 
-  factory LayoutNode(LayoutNodeMeta meta) {
+  factory LayoutNode.fromMeta(LayoutNodeMeta meta) {
     final NodeType type;
 
     switch(meta.type) {
@@ -56,10 +90,11 @@ class LayoutNode {
         throw ArgumentError("Unknown node type ${meta.type}");
     }
 
-    return LayoutNode._(
+    return LayoutNode(
       position: Offset(meta.position.x, meta.position.y),
       type: type,
-      uuid: UuidValue(meta.uuid)
+      uuid: UuidValue(meta.uuid),
+      name: meta.name
     );
   }
 }

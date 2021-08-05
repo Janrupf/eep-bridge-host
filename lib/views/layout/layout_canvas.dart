@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:eep_bridge_host/project/layout.dart';
 import 'package:eep_bridge_host/views/layout/layout_canvas_controller.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -75,7 +76,7 @@ class _LayoutCanvasState extends State<LayoutCanvas> {
     );
   }
 
-  void _showNodeEditMenu(Offset globalPosition, LayoutNode node) {
+  void _showNodeEditMenu(Offset globalPosition, VisualLayoutNode node) {
     showMenu(
       color: Theme.of(context).colorScheme.primary,
       context: context,
@@ -117,7 +118,7 @@ class _LayoutCanvasState extends State<LayoutCanvas> {
     );
   }
 
-  void _deleteNode(LayoutNode node) {
+  void _deleteNode(VisualLayoutNode node) {
     widget.controller.removeNode(node);
   }
 }
@@ -178,15 +179,16 @@ class _LayoutCanvasPainter extends CustomPainter {
     final currentRightX = (-controller.pan.dx + size.width) / controller.scale;
 
     final currentTopY = -controller.pan.dy / controller.scale;
-    final currentBottomY = (-controller.pan.dy + size.height) / controller.scale;
+    final currentBottomY =
+        (-controller.pan.dy + size.height) / controller.scale;
 
     bool borderWarning = controller.nodes.any((node) =>
-        (node.state == LayoutNodeState.ghosted ||
-            node.state == LayoutNodeState.dragged) &&
-        (node.position.dx - 20 <= currentLeftX ||
-            node.position.dx + 20 >= currentRightX ||
-            node.position.dy - 20 <= currentTopY ||
-            node.position.dy + 20 >= currentBottomY));
+        (node.state == VisualLayoutNodeState.ghosted ||
+            node.state == VisualLayoutNodeState.dragged) &&
+        (node.underlyingNode.position.dx - 20 <= currentLeftX ||
+            node.underlyingNode.position.dx + 20 >= currentRightX ||
+            node.underlyingNode.position.dy - 20 <= currentTopY ||
+            node.underlyingNode.position.dy + 20 >= currentBottomY));
 
     final borderPaint = Paint()
       ..color = borderWarning ? Colors.red : Colors.white.withAlpha(100)
@@ -238,9 +240,11 @@ class _LayoutCanvasPainter extends CustomPainter {
   }
 
   void _drawLineBetweenNodes(
-      Canvas canvas, LayoutNode first, LayoutNode second) {
-    var adjustedX = second.position.dx - first.position.dx;
-    var adjustedY = second.position.dy - first.position.dy;
+      Canvas canvas, VisualLayoutNode first, VisualLayoutNode second) {
+    var adjustedX =
+        second.underlyingNode.position.dx - first.underlyingNode.position.dx;
+    var adjustedY =
+        second.underlyingNode.position.dy - first.underlyingNode.position.dy;
     final distance = math.sqrt(adjustedX * adjustedX + adjustedY * adjustedY);
 
     if (distance > 0) {
@@ -251,20 +255,24 @@ class _LayoutCanvasPainter extends CustomPainter {
     adjustedX *= distance - 20;
     adjustedY *= distance - 20;
 
-    final firstAdjusted = first.position.translate(adjustedX, adjustedY);
-    final secondAdjusted = second.position.translate(-adjustedX, -adjustedY);
+    final firstAdjusted =
+        first.underlyingNode.position.translate(adjustedX, adjustedY);
+    final secondAdjusted =
+        second.underlyingNode.position.translate(-adjustedX, -adjustedY);
     canvas.drawLine(secondAdjusted, firstAdjusted, _paintFor(first, second));
   }
 
-  void _drawNode(Canvas canvas, LayoutNode node) {
+  void _drawNode(Canvas canvas, VisualLayoutNode node) {
     final paint = _paintFor(node);
 
-    _drawIcon(canvas, node.icon, node.position, paint.color);
-    canvas.drawCircle(node.position, 20, paint);
-    _drawText(canvas, node.label, node.position.translate(30, 0), paint.color);
+    _drawIcon(canvas, node.underlyingNode.type.toIcon(),
+        node.underlyingNode.position, paint.color);
+    canvas.drawCircle(node.underlyingNode.position, 20, paint);
+    _drawText(canvas, node.underlyingNode.name,
+        node.underlyingNode.position.translate(30, 0), paint.color);
   }
 
-  Paint _paintFor(LayoutNode a, [LayoutNode? b]) {
+  Paint _paintFor(VisualLayoutNode a, [VisualLayoutNode? b]) {
     final important = b == null
         ? a
         : a.state.toPriority() > b.state.toPriority()
@@ -272,16 +280,16 @@ class _LayoutCanvasPainter extends CustomPainter {
             : b;
 
     switch (important.state) {
-      case LayoutNodeState.normal:
+      case VisualLayoutNodeState.normal:
         return _normalPaint;
 
-      case LayoutNodeState.hover:
+      case VisualLayoutNodeState.hover:
         return _hoverPaint;
 
-      case LayoutNodeState.dragged:
+      case VisualLayoutNodeState.dragged:
         return _dragPaint;
 
-      case LayoutNodeState.ghosted:
+      case VisualLayoutNodeState.ghosted:
         return _ghostedPaint;
     }
   }
@@ -348,41 +356,36 @@ class NoValueChangeNotifier extends ChangeNotifier {
   }
 }
 
-enum LayoutNodeState { normal, hover, dragged, ghosted }
+enum VisualLayoutNodeState { normal, hover, dragged, ghosted }
 
-extension _LayoutNodeStateExtension on LayoutNodeState {
+extension _LayoutNodeStateExtension on VisualLayoutNodeState {
   int toPriority() {
     switch (this) {
-      case LayoutNodeState.normal:
+      case VisualLayoutNodeState.normal:
         return 1;
 
-      case LayoutNodeState.hover:
+      case VisualLayoutNodeState.hover:
         return 2;
 
-      case LayoutNodeState.dragged:
+      case VisualLayoutNodeState.dragged:
         return 3;
 
-      case LayoutNodeState.ghosted:
+      case VisualLayoutNodeState.ghosted:
         return -1;
     }
   }
 }
 
-class LayoutNode {
-  Offset position;
-  IconData icon;
-  String label;
-  LayoutNodeState state;
+class VisualLayoutNode {
+  VisualLayoutNodeState state;
 
-  LayoutNode({
-    required this.position,
-    required this.icon,
-    required this.label,
-  }) : state = LayoutNodeState.normal;
+  LayoutNode underlyingNode;
 
-  LayoutNode.ghosted({
-    required this.position,
-    required this.icon,
-    required this.label,
-  }) : state = LayoutNodeState.ghosted;
+  VisualLayoutNode({
+    required this.underlyingNode,
+  }) : state = VisualLayoutNodeState.normal;
+
+  VisualLayoutNode.ghosted({
+    required this.underlyingNode,
+  }) : state = VisualLayoutNodeState.ghosted;
 }
