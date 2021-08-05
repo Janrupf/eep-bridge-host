@@ -62,7 +62,7 @@ class LayoutCanvasController {
   double get scale => _scale;
 
   set scale(double value) {
-    double clamped = ex_math.clamp(value, 0.4, 3);
+    double clamped = ex_math.clamp(value, 0.2, 3);
 
     if (clamped != _scale) {
       _scale = clamped;

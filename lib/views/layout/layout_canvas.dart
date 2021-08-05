@@ -175,12 +175,11 @@ class _LayoutCanvasPainter extends CustomPainter {
 
     canvas.restore();
 
-    final currentLeftX = -controller.pan.dx / controller.scale;
-    final currentRightX = (-controller.pan.dx + size.width) / controller.scale;
+    final currentLeftX = -controller.pan.dx;
+    final currentRightX = (-controller.pan.dx + (size.width / controller.scale));
 
-    final currentTopY = -controller.pan.dy / controller.scale;
-    final currentBottomY =
-        (-controller.pan.dy + size.height) / controller.scale;
+    final currentTopY = -controller.pan.dy;
+    final currentBottomY = (-controller.pan.dy + (size.height / controller.scale));
 
     bool borderWarning = controller.nodes.any((node) =>
         (node.state == VisualLayoutNodeState.ghosted ||
