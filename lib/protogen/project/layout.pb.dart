@@ -165,19 +165,140 @@ class LayoutNodeMeta extends $pb.GeneratedMessage {
   void clearName() => clearField(4);
 }
 
+class LayoutNodeConnectionAttachmentMeta extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'LayoutNodeConnectionAttachmentMeta', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'net.janrupf.eep.project'), createEmptyInstance: create)
+    ..a<$core.double>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'distance', $pb.PbFieldType.OD)
+    ..hasRequiredFields = false
+  ;
+
+  LayoutNodeConnectionAttachmentMeta._() : super();
+  factory LayoutNodeConnectionAttachmentMeta({
+    $core.double? distance,
+  }) {
+    final _result = create();
+    if (distance != null) {
+      _result.distance = distance;
+    }
+    return _result;
+  }
+  factory LayoutNodeConnectionAttachmentMeta.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory LayoutNodeConnectionAttachmentMeta.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  LayoutNodeConnectionAttachmentMeta clone() => LayoutNodeConnectionAttachmentMeta()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  LayoutNodeConnectionAttachmentMeta copyWith(void Function(LayoutNodeConnectionAttachmentMeta) updates) => super.copyWith((message) => updates(message as LayoutNodeConnectionAttachmentMeta)) as LayoutNodeConnectionAttachmentMeta; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static LayoutNodeConnectionAttachmentMeta create() => LayoutNodeConnectionAttachmentMeta._();
+  LayoutNodeConnectionAttachmentMeta createEmptyInstance() => create();
+  static $pb.PbList<LayoutNodeConnectionAttachmentMeta> createRepeated() => $pb.PbList<LayoutNodeConnectionAttachmentMeta>();
+  @$core.pragma('dart2js:noInline')
+  static LayoutNodeConnectionAttachmentMeta getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<LayoutNodeConnectionAttachmentMeta>(create);
+  static LayoutNodeConnectionAttachmentMeta? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.double get distance => $_getN(0);
+  @$pb.TagNumber(1)
+  set distance($core.double v) { $_setDouble(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasDistance() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearDistance() => clearField(1);
+}
+
+class LayoutNodeConnectionMeta extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'LayoutNodeConnectionMeta', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'net.janrupf.eep.project'), createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'firstNode', protoName: 'firstNode')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'secondNode', protoName: 'secondNode')
+    ..pc<LayoutNodeConnectionAttachmentMeta>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'attachments', $pb.PbFieldType.PM, subBuilder: LayoutNodeConnectionAttachmentMeta.create)
+    ..hasRequiredFields = false
+  ;
+
+  LayoutNodeConnectionMeta._() : super();
+  factory LayoutNodeConnectionMeta({
+    $core.String? firstNode,
+    $core.String? secondNode,
+    $core.Iterable<LayoutNodeConnectionAttachmentMeta>? attachments,
+  }) {
+    final _result = create();
+    if (firstNode != null) {
+      _result.firstNode = firstNode;
+    }
+    if (secondNode != null) {
+      _result.secondNode = secondNode;
+    }
+    if (attachments != null) {
+      _result.attachments.addAll(attachments);
+    }
+    return _result;
+  }
+  factory LayoutNodeConnectionMeta.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory LayoutNodeConnectionMeta.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  LayoutNodeConnectionMeta clone() => LayoutNodeConnectionMeta()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  LayoutNodeConnectionMeta copyWith(void Function(LayoutNodeConnectionMeta) updates) => super.copyWith((message) => updates(message as LayoutNodeConnectionMeta)) as LayoutNodeConnectionMeta; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static LayoutNodeConnectionMeta create() => LayoutNodeConnectionMeta._();
+  LayoutNodeConnectionMeta createEmptyInstance() => create();
+  static $pb.PbList<LayoutNodeConnectionMeta> createRepeated() => $pb.PbList<LayoutNodeConnectionMeta>();
+  @$core.pragma('dart2js:noInline')
+  static LayoutNodeConnectionMeta getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<LayoutNodeConnectionMeta>(create);
+  static LayoutNodeConnectionMeta? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get firstNode => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set firstNode($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasFirstNode() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearFirstNode() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get secondNode => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set secondNode($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasSecondNode() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearSecondNode() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.List<LayoutNodeConnectionAttachmentMeta> get attachments => $_getList(2);
+}
+
 class LayoutMeta extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'LayoutMeta', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'net.janrupf.eep.project'), createEmptyInstance: create)
     ..pc<LayoutNodeMeta>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'nodes', $pb.PbFieldType.PM, subBuilder: LayoutNodeMeta.create)
+    ..pc<LayoutNodeConnectionAttachmentMeta>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'connections', $pb.PbFieldType.PM, subBuilder: LayoutNodeConnectionAttachmentMeta.create)
     ..hasRequiredFields = false
   ;
 
   LayoutMeta._() : super();
   factory LayoutMeta({
     $core.Iterable<LayoutNodeMeta>? nodes,
+    $core.Iterable<LayoutNodeConnectionAttachmentMeta>? connections,
   }) {
     final _result = create();
     if (nodes != null) {
       _result.nodes.addAll(nodes);
+    }
+    if (connections != null) {
+      _result.connections.addAll(connections);
     }
     return _result;
   }
@@ -204,5 +325,8 @@ class LayoutMeta extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(1)
   $core.List<LayoutNodeMeta> get nodes => $_getList(0);
+
+  @$pb.TagNumber(2)
+  $core.List<LayoutNodeConnectionAttachmentMeta> get connections => $_getList(1);
 }
 

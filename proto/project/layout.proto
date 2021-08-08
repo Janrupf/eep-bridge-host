@@ -21,6 +21,17 @@ message LayoutNodeMeta {
   string name = 4;
 }
 
+message LayoutNodeConnectionAttachmentMeta {
+  double distance = 1;
+}
+
+message LayoutNodeConnectionMeta {
+  string firstNode = 1;
+  string secondNode = 2;
+  repeated LayoutNodeConnectionAttachmentMeta attachments = 3;
+}
+
 message LayoutMeta {
   repeated LayoutNodeMeta nodes = 1;
+  repeated LayoutNodeConnectionAttachmentMeta connections = 2;
 }
