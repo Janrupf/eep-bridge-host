@@ -59,17 +59,23 @@ extension NodeTypeMethods on NodeType {
 
 class Layout {
   List<LayoutNode> nodes;
+  List<LayoutNodeConnection> connections;
 
-  Layout._({required this.nodes});
+  Layout({required this.nodes, required this.connections});
 
-  factory Layout(LayoutMeta meta) {
+  factory Layout.fromMeta(LayoutMeta meta) {
     final nodes = <LayoutNode>[];
 
     for (final node in meta.nodes) {
       nodes.add(LayoutNode.fromMeta(node));
     }
 
-    return Layout._(nodes: nodes);
+    final connections = <LayoutNodeConnection>[];
+    for (final connection in meta.connections) {
+      connections.add(LayoutNodeConnection.fromMeta(nodes, connection));
+    }
+
+    return Layout(nodes: nodes, connections: connections);
   }
 
   LayoutNode makeNewNode(NodeType type, String name) {
@@ -83,7 +89,9 @@ class Layout {
     return node;
   }
 
-  LayoutMeta toMeta() => LayoutMeta(nodes: nodes.map((node) => node.toMeta()));
+  LayoutMeta toMeta() => LayoutMeta(
+      nodes: nodes.map((node) => node.toMeta()),
+      connections: connections.map((connection) => connection.toMeta()));
 }
 
 class LayoutNode {
@@ -112,4 +120,45 @@ class LayoutNode {
         uuid: uuid.uuid,
         name: name,
       );
+}
+
+class LayoutNodeConnection {
+  LayoutNode firstNode;
+  LayoutNode secondNode;
+  List<LayoutNodeConnectionAttachment> attachments;
+
+  LayoutNodeConnection(
+      {required this.firstNode,
+      required this.secondNode,
+      required this.attachments});
+
+  factory LayoutNodeConnection.fromMeta(
+      List<LayoutNode> nodes, LayoutNodeConnectionMeta meta) {
+    return LayoutNodeConnection(
+      firstNode: nodes.firstWhere((node) => node.uuid.uuid == meta.firstNode),
+      secondNode: nodes.firstWhere((node) => node.uuid.uuid == meta.secondNode),
+      attachments: meta.attachments
+          .map((meta) => LayoutNodeConnectionAttachment.fromMeta(meta))
+          .toList(growable: true),
+    );
+  }
+
+  LayoutNodeConnectionMeta toMeta() => LayoutNodeConnectionMeta(
+      firstNode: firstNode.uuid.uuid,
+      secondNode: secondNode.uuid.uuid,
+      attachments: attachments.map((a) => a.toMeta()));
+}
+
+class LayoutNodeConnectionAttachment {
+  double distance;
+
+  LayoutNodeConnectionAttachment({required this.distance});
+
+  factory LayoutNodeConnectionAttachment.fromMeta(
+      LayoutNodeConnectionAttachmentMeta meta) {
+    return LayoutNodeConnectionAttachment(distance: meta.distance);
+  }
+
+  LayoutNodeConnectionAttachmentMeta toMeta() =>
+      LayoutNodeConnectionAttachmentMeta(distance: distance);
 }

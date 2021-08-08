@@ -30,7 +30,7 @@ class Project {
         _client = null,
         _currentSubscription = null,
         _paused = true {
-    this.layout = Layout(_identifiedMeta.meta.layout);
+    this.layout = Layout.fromMeta(_identifiedMeta.meta.layout);
   }
 
   /// Called when a client controlling this project has connected.

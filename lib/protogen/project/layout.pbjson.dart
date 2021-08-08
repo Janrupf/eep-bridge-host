@@ -72,9 +72,9 @@ const LayoutMeta$json = const {
   '1': 'LayoutMeta',
   '2': const [
     const {'1': 'nodes', '3': 1, '4': 3, '5': 11, '6': '.net.janrupf.eep.project.LayoutNodeMeta', '10': 'nodes'},
-    const {'1': 'connections', '3': 2, '4': 3, '5': 11, '6': '.net.janrupf.eep.project.LayoutNodeConnectionAttachmentMeta', '10': 'connections'},
+    const {'1': 'connections', '3': 2, '4': 3, '5': 11, '6': '.net.janrupf.eep.project.LayoutNodeConnectionMeta', '10': 'connections'},
   ],
 };
 
 /// Descriptor for `LayoutMeta`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List layoutMetaDescriptor = $convert.base64Decode('CgpMYXlvdXRNZXRhEj0KBW5vZGVzGAEgAygLMicubmV0LmphbnJ1cGYuZWVwLnByb2plY3QuTGF5b3V0Tm9kZU1ldGFSBW5vZGVzEl0KC2Nvbm5lY3Rpb25zGAIgAygLMjsubmV0LmphbnJ1cGYuZWVwLnByb2plY3QuTGF5b3V0Tm9kZUNvbm5lY3Rpb25BdHRhY2htZW50TWV0YVILY29ubmVjdGlvbnM=');
+final $typed_data.Uint8List layoutMetaDescriptor = $convert.base64Decode('CgpMYXlvdXRNZXRhEj0KBW5vZGVzGAEgAygLMicubmV0LmphbnJ1cGYuZWVwLnByb2plY3QuTGF5b3V0Tm9kZU1ldGFSBW5vZGVzElMKC2Nvbm5lY3Rpb25zGAIgAygLMjEubmV0LmphbnJ1cGYuZWVwLnByb2plY3QuTGF5b3V0Tm9kZUNvbm5lY3Rpb25NZXRhUgtjb25uZWN0aW9ucw==');

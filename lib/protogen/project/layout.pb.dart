@@ -284,14 +284,14 @@ class LayoutNodeConnectionMeta extends $pb.GeneratedMessage {
 class LayoutMeta extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'LayoutMeta', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'net.janrupf.eep.project'), createEmptyInstance: create)
     ..pc<LayoutNodeMeta>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'nodes', $pb.PbFieldType.PM, subBuilder: LayoutNodeMeta.create)
-    ..pc<LayoutNodeConnectionAttachmentMeta>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'connections', $pb.PbFieldType.PM, subBuilder: LayoutNodeConnectionAttachmentMeta.create)
+    ..pc<LayoutNodeConnectionMeta>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'connections', $pb.PbFieldType.PM, subBuilder: LayoutNodeConnectionMeta.create)
     ..hasRequiredFields = false
   ;
 
   LayoutMeta._() : super();
   factory LayoutMeta({
     $core.Iterable<LayoutNodeMeta>? nodes,
-    $core.Iterable<LayoutNodeConnectionAttachmentMeta>? connections,
+    $core.Iterable<LayoutNodeConnectionMeta>? connections,
   }) {
     final _result = create();
     if (nodes != null) {
@@ -327,6 +327,6 @@ class LayoutMeta extends $pb.GeneratedMessage {
   $core.List<LayoutNodeMeta> get nodes => $_getList(0);
 
   @$pb.TagNumber(2)
-  $core.List<LayoutNodeConnectionAttachmentMeta> get connections => $_getList(1);
+  $core.List<LayoutNodeConnectionMeta> get connections => $_getList(1);
 }
 
