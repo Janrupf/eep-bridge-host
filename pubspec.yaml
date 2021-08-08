@@ -145,3 +145,6 @@ flutter:
         - asset: assets/fonts/Roboto/thin/Roboto-ThinItalic.ttf
           weight: 100
           style: italic
+    - family: EEPBridgeIcons
+      fonts:
+        - asset: assets/fonts/Icons/EEPBridgeIcons.ttf

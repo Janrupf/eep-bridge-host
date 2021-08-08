@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:eep_bridge_host/icons/eep_bridge_icons.dart';
 import 'package:eep_bridge_host/project/layout.dart';
 import 'package:eep_bridge_host/util/simple_vector.dart';
 import 'package:eep_bridge_host/views/layout/layout_canvas_controller.dart';
@@ -292,7 +293,7 @@ class _LayoutCanvasPainter extends CustomPainter {
     canvas.translate(drawPoint.dx, drawPoint.dy);
     canvas.rotate(drawVector.rotate(RotationValue.degree(90)).rotation.radians);
 
-    _drawIcon(canvas, Icons.traffic, Offset(15, 0), Colors.white, fontSize: 25);
+    _drawIcon(canvas, EEPBridgeIcons.signal, Offset(15, -2), Colors.white, fontSize: 12);
 
     canvas.drawPath(
       Path()..moveTo(0, 0)
