@@ -5,108 +5,146 @@ import 'package:eep_bridge_host/util/iteratable_extension.dart';
 import 'package:eep_bridge_host/views/layout/layout_canvas.dart';
 import 'package:flutter/material.dart';
 
+enum LayoutNodeVisualState { normal, hover, dragged, ghosted }
+
+enum VisualLayoutNodeState { normal, hover, dragged, ghosted }
+
+extension LayoutNodeVisualStateExtension on LayoutNodeVisualState {
+  int toPriority() {
+    switch (this) {
+      case LayoutNodeVisualState.normal:
+        return 1;
+
+      case LayoutNodeVisualState.hover:
+        return 2;
+
+      case LayoutNodeVisualState.dragged:
+        return 3;
+
+      case LayoutNodeVisualState.ghosted:
+        return -1;
+    }
+  }
+}
+
+class VisualLayoutNode {
+  VisualLayoutNodeState state;
+
+  LayoutNode underlyingNode;
+
+  VisualLayoutNode({
+    required this.underlyingNode,
+  }) : state = VisualLayoutNodeState.normal;
+
+  VisualLayoutNode.ghosted({
+    required this.underlyingNode,
+  }) : state = VisualLayoutNodeState.ghosted;
+}
+
+class VisualLayoutConnection {
+  VisualLayoutNode firstNode;
+  VisualLayoutNode secondNode;
+
+  LayoutNodeConnection underlyingConnection;
+
+  VisualLayoutConnection(
+      {required this.firstNode,
+      required this.secondNode,
+      required this.underlyingConnection});
+
+  bool connectsTo(VisualLayoutNode first, [VisualLayoutNode? second]) {
+    if (second == null) {
+      return first == firstNode || second == secondNode;
+    }
+
+    return (first == firstNode && second == secondNode) ||
+        (second == firstNode && first == secondNode);
+  }
+}
+
 class LayoutCanvasController {
   final Layout layout;
-  final List<VisualLayoutNode> _nodes;
-  final List<VisualLayoutConnection> _connections;
   final NoValueChangeNotifier _redrawNotifier;
+  final Expando<LayoutNodeVisualState> _nodeStates;
 
   double _scale;
   Offset _pan;
 
   LayoutCanvasController(this.layout)
-      : _nodes = [],
-        _connections = [],
-        _redrawNotifier = NoValueChangeNotifier(),
+      : _redrawNotifier = NoValueChangeNotifier(),
+        _nodeStates = Expando(),
         _scale = 1,
         _pan = Offset(0, 0) {
-    _nodes.clear(); // Hot reload fix
-    _connections.clear(); // Hot reload fix
 
-    _nodes.addAll(
-        layout.nodes.map((node) => VisualLayoutNode(underlyingNode: node)));
+    /* final connection = getOrCreateConnection(layout.nodes[0], layout.nodes[1]);
+    connection.attachments.clear();
 
-    _connections
-        .addAll(layout.connections.map((connection) => VisualLayoutConnection(
-              firstNode: visualFromUnderlying(connection.firstNode),
-              secondNode: visualFromUnderlying(connection.secondNode),
-              underlyingConnection: connection,
-            )));
-
-    getOrCreateConnection(_nodes[0], _nodes[1]);
+    connection.attachments.add(LayoutNodeConnectionAttachment(distance: 5.0)); */
   }
 
   void addRedrawListener(VoidCallback listener) {
     _redrawNotifier.addListener(listener);
   }
 
-  VisualLayoutNode visualFromUnderlying(LayoutNode node) =>
-      _nodes.firstWhere((v) => v.underlyingNode == node);
+  List<LayoutNode> get nodes => List.unmodifiable(layout.nodes);
 
-  List<VisualLayoutNode> get nodes => List.unmodifiable(_nodes);
-
-  List<VisualLayoutConnection> get connections =>
-      List.unmodifiable(_connections);
+  List<LayoutNodeConnection> get connections =>
+      List.unmodifiable(layout.connections);
 
   NoValueChangeNotifier get redrawNotifier => _redrawNotifier;
 
-  bool hasNode(VisualLayoutNode node) => _nodes.contains(node);
+  bool hasNode(LayoutNode node) => layout.nodes.contains(node);
 
-  void removeNode(VisualLayoutNode node) {
+  void removeNode(LayoutNode node) {
     if (!hasNode(node)) {
       Logger.warn("Tried to remove nonexistent node $node");
       return;
     }
 
-    _connections
+    layout.connections
         .where((connection) => connection.connectsTo(node))
         .forEach(removeConnection);
 
-    layout.nodes.remove(node.underlyingNode);
-    _nodes.remove(node);
+    layout.nodes.remove(node);
     _redraw();
   }
 
-  void addNode(VisualLayoutNode node) {
-    layout.nodes.add(node.underlyingNode);
-
-    _nodes.add(node);
+  void addNode(LayoutNode node) {
+    layout.nodes.add(node);
     _redraw();
   }
 
-  void addNodes(Iterable<VisualLayoutNode> nodes) {
+  void addNodes(Iterable<LayoutNode> nodes) {
     if (nodes.isNotEmpty) {
-      _nodes.addAll(nodes);
+      layout.nodes.addAll(nodes);
       _redraw();
     }
   }
 
-  bool hasConnection(VisualLayoutConnection connection) =>
-      _connections.contains(connection);
+  bool hasConnection(LayoutNodeConnection connection) =>
+      layout.connections.contains(connection);
 
-  void removeConnection(VisualLayoutConnection connection) {
+  void removeConnection(LayoutNodeConnection connection) {
     if (!hasConnection(connection)) {
       Logger.warn("Tried to remove nonexistent connection $connection");
     }
 
-    layout.connections.remove(connection.underlyingConnection);
-    _connections.remove(connection);
+    layout.connections.remove(connection);
     _redraw();
   }
 
-  VisualLayoutConnection? findConnection(
-      VisualLayoutNode first, VisualLayoutNode second) {
+  LayoutNodeConnection? findConnection(LayoutNode first, LayoutNode second) {
     if (!hasNode(first) || !hasNode(second)) {
       Logger.warn("Tried to find a connection between unknown nodes");
       return null;
     }
 
-    return connections
+    return layout.connections
         .firstWhereOrNull((connection) => connection.connectsTo(first, second));
   }
 
-  VisualLayoutConnection getOrCreateConnection(
-      VisualLayoutNode first, VisualLayoutNode second) {
+  LayoutNodeConnection getOrCreateConnection(
+      LayoutNode first, LayoutNode second) {
     if (!hasNode(first) || !hasNode(second)) {
       throw ArgumentError("Not all nodes are part of this layout");
     }
@@ -116,16 +154,22 @@ class LayoutCanvasController {
       return connection;
     }
 
-    final underlying = LayoutNodeConnection(
-        firstNode: first.underlyingNode,
-        secondNode: second.underlyingNode,
-        attachments: []);
-    layout.connections.add(underlying);
-
-    connection = VisualLayoutConnection(
-        firstNode: first, secondNode: second, underlyingConnection: underlying);
-    _connections.add(connection);
+    connection = LayoutNodeConnection(
+        firstNode: first, secondNode: second, attachments: []);
+    layout.connections.add(connection);
     return connection;
+  }
+
+  LayoutNodeVisualState getNodeState(LayoutNode node) {
+    return _nodeStates[node] ?? LayoutNodeVisualState.normal;
+  }
+
+  void setNodeState(LayoutNode node, LayoutNodeVisualState state) {
+    _nodeStates[node] = state;
+  }
+
+  void clearNodeState(LayoutNode node) {
+    _nodeStates[node] = null;
   }
 
   void _redraw() => _redrawNotifier.notifyListeners();
@@ -151,17 +195,17 @@ class LayoutCanvasController {
   }
 
   void doStartPan(Offset panPosition) {
-    _setNodeStateAt(panPosition, VisualLayoutNodeState.dragged);
+    _setNodeStateAt(panPosition, LayoutNodeVisualState.dragged);
   }
 
   void doPan(Offset panPosition, Offset panDelta) {
     final node = nodes.firstWhereOrNull(
-        (node) => node.state == VisualLayoutNodeState.dragged);
+        (node) => getNodeState(node) == LayoutNodeVisualState.dragged);
     if (node != null) {
       final realOffset = _translateOffset(panPosition);
 
-      if (node.underlyingNode.position != realOffset) {
-        node.underlyingNode.position = realOffset;
+      if (node.position != realOffset) {
+        node.position = realOffset;
         _redraw();
       }
     }
@@ -186,7 +230,7 @@ class LayoutCanvasController {
       return;
     }
 
-    _setNodeStateAt(offset, VisualLayoutNodeState.hover);
+    _setNodeStateAt(offset, LayoutNodeVisualState.hover);
   }
 
   void doUp(Offset offset) {
@@ -203,14 +247,14 @@ class LayoutCanvasController {
         .translate(-_pan.dx, -_pan.dy);
   }
 
-  VisualLayoutNode? findNodeAt(Offset offset) {
+  LayoutNode? findNodeAt(Offset offset) {
     Offset realOffset = _translateOffset(offset);
 
     return nodes.firstWhereOrNull(
-        (node) => (node.underlyingNode.position - realOffset).distance <= 20);
+        (node) => (node.position - realOffset).distance <= 20);
   }
 
-  void _setNodeStateAt(Offset offset, VisualLayoutNodeState newState) {
+  void _setNodeStateAt(Offset offset, LayoutNodeVisualState newState) {
     final target = findNodeAt(offset);
     if (target == null) {
       _resetNodeStates();
@@ -218,11 +262,11 @@ class LayoutCanvasController {
     }
 
     bool needsRedraw = nodes.map((node) {
-      if (node == target && target.state != newState) {
-        target.state = newState;
+      if (node == target && getNodeState(target) != newState) {
+        setNodeState(target, newState);
         return true;
       } else {
-        target.state = VisualLayoutNodeState.normal;
+        clearNodeState(target);
         return false;
       }
     }).any((v) => v);
@@ -234,11 +278,11 @@ class LayoutCanvasController {
 
   void _resetNodeStates() {
     final needsRedraw = nodes.map((node) {
-      if (node.state == VisualLayoutNodeState.normal) {
+      if (getNodeState(node) == LayoutNodeVisualState.normal) {
         return false;
       }
 
-      node.state = VisualLayoutNodeState.normal;
+      clearNodeState(node);
       return true;
     }).any((v) => v);
 
@@ -251,13 +295,13 @@ class LayoutCanvasController {
     final realOffset = _translateOffset(offset);
 
     final node = nodes.firstWhereOrNull(
-        (node) => node.state == VisualLayoutNodeState.ghosted);
+        (node) => getNodeState(node) == LayoutNodeVisualState.ghosted);
     if (node == null) {
       return false;
     }
 
-    if (node.underlyingNode.position != realOffset) {
-      node.underlyingNode.position = realOffset;
+    if (node.position != realOffset) {
+      node.position = realOffset;
       _redraw();
     }
 
@@ -266,7 +310,7 @@ class LayoutCanvasController {
 
   void _dropGhostedNode(Offset? offset) {
     final node = nodes.firstWhereOrNull(
-        (node) => node.state == VisualLayoutNodeState.ghosted);
+        (node) => getNodeState(node) == LayoutNodeVisualState.ghosted);
     if (node == null) {
       return;
     }
@@ -274,8 +318,8 @@ class LayoutCanvasController {
     if (offset == null) {
       nodes.remove(node);
     } else {
-      node.underlyingNode.position = _translateOffset(offset);
-      node.state = VisualLayoutNodeState.normal;
+      node.position = _translateOffset(offset);
+      clearNodeState(node);
     }
 
     _redraw();

@@ -102,7 +102,7 @@ class _LayoutEditorState extends State<LayoutEditor> {
   void _addGhostedNode(NodeType type, String name) {
     final realNode = widget.project.layout.makeNewNode(type, name);
 
-    widget._controller
-        .addNode(VisualLayoutNode.ghosted(underlyingNode: realNode));
+    widget._controller.addNode(realNode);
+    widget._controller.setNodeState(realNode, LayoutNodeVisualState.ghosted);
   }
 }

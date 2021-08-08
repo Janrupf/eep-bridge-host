@@ -147,6 +147,15 @@ class LayoutNodeConnection {
       firstNode: firstNode.uuid.uuid,
       secondNode: secondNode.uuid.uuid,
       attachments: attachments.map((a) => a.toMeta()));
+
+  bool connectsTo(LayoutNode first, [LayoutNode? second]) {
+    if (second == null) {
+      return first == firstNode || first == secondNode;
+    }
+
+    return (first == firstNode && second == secondNode) ||
+        (second == firstNode && first == secondNode);
+  }
 }
 
 class LayoutNodeConnectionAttachment {

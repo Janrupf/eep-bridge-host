@@ -76,7 +76,7 @@ class _LayoutCanvasState extends State<LayoutCanvas> {
     );
   }
 
-  void _showNodeEditMenu(Offset globalPosition, VisualLayoutNode node) {
+  void _showNodeEditMenu(Offset globalPosition, LayoutNode node) {
     showMenu(
       color: Theme.of(context).colorScheme.primary,
       context: context,
@@ -118,7 +118,7 @@ class _LayoutCanvasState extends State<LayoutCanvas> {
     );
   }
 
-  void _deleteNode(VisualLayoutNode node) {
+  void _deleteNode(LayoutNode node) {
     widget.controller.removeNode(node);
   }
 }
@@ -185,12 +185,12 @@ class _LayoutCanvasPainter extends CustomPainter {
         (-controller.pan.dy + (size.height / controller.scale));
 
     bool borderWarning = controller.nodes.any((node) =>
-        (node.state == VisualLayoutNodeState.ghosted ||
-            node.state == VisualLayoutNodeState.dragged) &&
-        (node.underlyingNode.position.dx - 20 <= currentLeftX ||
-            node.underlyingNode.position.dx + 20 >= currentRightX ||
-            node.underlyingNode.position.dy - 20 <= currentTopY ||
-            node.underlyingNode.position.dy + 20 >= currentBottomY));
+        (controller.getNodeState(node) == LayoutNodeVisualState.ghosted ||
+            controller.getNodeState(node) == LayoutNodeVisualState.dragged) &&
+        (node.position.dx - 20 <= currentLeftX ||
+            node.position.dx + 20 >= currentRightX ||
+            node.position.dy - 20 <= currentTopY ||
+            node.position.dy + 20 >= currentBottomY));
 
     final borderPaint = Paint()
       ..color = borderWarning ? Colors.red : Colors.white.withAlpha(100)
@@ -241,16 +241,14 @@ class _LayoutCanvasPainter extends CustomPainter {
     }
   }
 
-  void _drawConnection(Canvas canvas, VisualLayoutConnection connection) {
+  void _drawConnection(Canvas canvas, LayoutNodeConnection connection) {
     _drawLineBetweenNodes(canvas, connection.firstNode, connection.secondNode);
   }
 
   void _drawLineBetweenNodes(
-      Canvas canvas, VisualLayoutNode first, VisualLayoutNode second) {
-    var adjustedX =
-        second.underlyingNode.position.dx - first.underlyingNode.position.dx;
-    var adjustedY =
-        second.underlyingNode.position.dy - first.underlyingNode.position.dy;
+      Canvas canvas, LayoutNode first, LayoutNode second) {
+    var adjustedX = second.position.dx - first.position.dx;
+    var adjustedY = second.position.dy - first.position.dy;
     final distance = math.sqrt(adjustedX * adjustedX + adjustedY * adjustedY);
 
     if (distance > 0) {
@@ -261,41 +259,40 @@ class _LayoutCanvasPainter extends CustomPainter {
     adjustedX *= distance - 20;
     adjustedY *= distance - 20;
 
-    final firstAdjusted =
-        first.underlyingNode.position.translate(adjustedX, adjustedY);
-    final secondAdjusted =
-        second.underlyingNode.position.translate(-adjustedX, -adjustedY);
+    final firstAdjusted = first.position.translate(adjustedX, adjustedY);
+    final secondAdjusted = second.position.translate(-adjustedX, -adjustedY);
     canvas.drawLine(secondAdjusted, firstAdjusted, _paintFor(first, second));
   }
 
-  void _drawNode(Canvas canvas, VisualLayoutNode node) {
+  void _drawNode(Canvas canvas, LayoutNode node) {
     final paint = _paintFor(node);
 
-    _drawIcon(canvas, node.underlyingNode.type.toIcon(),
-        node.underlyingNode.position, paint.color);
-    canvas.drawCircle(node.underlyingNode.position, 20, paint);
-    _drawText(canvas, node.underlyingNode.name,
-        node.underlyingNode.position.translate(30, 0), paint.color);
+    _drawIcon(canvas, node.type.toIcon(), node.position, paint.color);
+    canvas.drawCircle(node.position, 20, paint);
+    _drawText(canvas, node.name, node.position.translate(30, 0), paint.color);
   }
 
-  Paint _paintFor(VisualLayoutNode a, [VisualLayoutNode? b]) {
-    final important = b == null
-        ? a
-        : a.state.toPriority() > b.state.toPriority()
-            ? a
-            : b;
+  Paint _paintFor(LayoutNode first, [LayoutNode? second]) {
+    final firstState = controller.getNodeState(first);
+    final secondState = second == null ? null : controller.getNodeState(second);
 
-    switch (important.state) {
-      case VisualLayoutNodeState.normal:
+    final important = secondState == null
+        ? firstState
+        : firstState.toPriority() > secondState.toPriority()
+            ? firstState
+            : secondState;
+
+    switch (important) {
+      case LayoutNodeVisualState.normal:
         return _normalPaint;
 
-      case VisualLayoutNodeState.hover:
+      case LayoutNodeVisualState.hover:
         return _hoverPaint;
 
-      case VisualLayoutNodeState.dragged:
+      case LayoutNodeVisualState.dragged:
         return _dragPaint;
 
-      case VisualLayoutNodeState.ghosted:
+      case LayoutNodeVisualState.ghosted:
         return _ghostedPaint;
     }
   }
@@ -359,60 +356,5 @@ class _LayoutCanvasPainter extends CustomPainter {
 class NoValueChangeNotifier extends ChangeNotifier {
   void notifyListeners() {
     super.notifyListeners();
-  }
-}
-
-enum VisualLayoutNodeState { normal, hover, dragged, ghosted }
-
-extension _LayoutNodeStateExtension on VisualLayoutNodeState {
-  int toPriority() {
-    switch (this) {
-      case VisualLayoutNodeState.normal:
-        return 1;
-
-      case VisualLayoutNodeState.hover:
-        return 2;
-
-      case VisualLayoutNodeState.dragged:
-        return 3;
-
-      case VisualLayoutNodeState.ghosted:
-        return -1;
-    }
-  }
-}
-
-class VisualLayoutNode {
-  VisualLayoutNodeState state;
-
-  LayoutNode underlyingNode;
-
-  VisualLayoutNode({
-    required this.underlyingNode,
-  }) : state = VisualLayoutNodeState.normal;
-
-  VisualLayoutNode.ghosted({
-    required this.underlyingNode,
-  }) : state = VisualLayoutNodeState.ghosted;
-}
-
-class VisualLayoutConnection {
-  VisualLayoutNode firstNode;
-  VisualLayoutNode secondNode;
-
-  LayoutNodeConnection underlyingConnection;
-
-  VisualLayoutConnection(
-      {required this.firstNode,
-      required this.secondNode,
-      required this.underlyingConnection});
-
-  bool connectsTo(VisualLayoutNode first, [VisualLayoutNode? second]) {
-    if (second == null) {
-      return first == firstNode || second == secondNode;
-    }
-
-    return (first == firstNode && second == secondNode) ||
-        (second == firstNode && first == secondNode);
   }
 }
