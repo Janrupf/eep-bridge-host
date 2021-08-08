@@ -170,16 +170,18 @@ class _LayoutCanvasPainter extends CustomPainter {
     canvas.translate(controller.pan.dx, controller.pan.dy);
     _drawGrid(canvas, size);
 
-    // _drawLineBetweenNodes(canvas, nodes[0], nodes[1]);
+    controller.connections.forEach((connection) => _drawConnection(canvas, connection));
     controller.nodes.forEach((node) => _drawNode(canvas, node));
 
     canvas.restore();
 
     final currentLeftX = -controller.pan.dx;
-    final currentRightX = (-controller.pan.dx + (size.width / controller.scale));
+    final currentRightX =
+        (-controller.pan.dx + (size.width / controller.scale));
 
     final currentTopY = -controller.pan.dy;
-    final currentBottomY = (-controller.pan.dy + (size.height / controller.scale));
+    final currentBottomY =
+        (-controller.pan.dy + (size.height / controller.scale));
 
     bool borderWarning = controller.nodes.any((node) =>
         (node.state == VisualLayoutNodeState.ghosted ||
@@ -236,6 +238,10 @@ class _LayoutCanvasPainter extends CustomPainter {
       canvas.drawLine(Offset(startX, y),
           Offset(startX + realWidth + GRID_SPACING * 3, y), gridPaint);
     }
+  }
+
+  void _drawConnection(Canvas canvas, VisualLayoutConnection connection) {
+    _drawLineBetweenNodes(canvas, connection.firstNode, connection.secondNode);
   }
 
   void _drawLineBetweenNodes(
@@ -387,4 +393,20 @@ class VisualLayoutNode {
   VisualLayoutNode.ghosted({
     required this.underlyingNode,
   }) : state = VisualLayoutNodeState.ghosted;
+}
+
+class VisualLayoutConnection {
+  VisualLayoutNode firstNode;
+  VisualLayoutNode secondNode;
+
+  VisualLayoutConnection({required this.firstNode, required this.secondNode});
+
+  bool connectsTo(VisualLayoutNode first, [VisualLayoutNode? second]) {
+    if (second == null) {
+      return first == firstNode || second == secondNode;
+    }
+
+    return (first == firstNode && second == secondNode) ||
+        (second == firstNode && first == secondNode);
+  }
 }

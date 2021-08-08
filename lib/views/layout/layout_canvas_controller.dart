@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 class LayoutCanvasController {
   final Layout layout;
   final List<VisualLayoutNode> _nodes;
+  final List<VisualLayoutConnection> _connections;
   final NoValueChangeNotifier _redrawNotifier;
 
   double _scale;
@@ -15,11 +16,16 @@ class LayoutCanvasController {
 
   LayoutCanvasController(this.layout)
       : _nodes = [],
+        _connections = [],
         _redrawNotifier = NoValueChangeNotifier(),
         _scale = 1,
         _pan = Offset(0, 0) {
+    _nodes.clear(); // Hot reload fix
+    _connections.clear(); // Hot reload fix
     _nodes.addAll(
         layout.nodes.map((node) => VisualLayoutNode(underlyingNode: node)));
+
+    getOrCreateConnection(_nodes[0], _nodes[1]);
   }
 
   void addRedrawListener(VoidCallback listener) {
@@ -27,6 +33,9 @@ class LayoutCanvasController {
   }
 
   List<VisualLayoutNode> get nodes => List.unmodifiable(_nodes);
+
+  List<VisualLayoutConnection> get connections =>
+      List.unmodifiable(_connections);
 
   NoValueChangeNotifier get redrawNotifier => _redrawNotifier;
 
@@ -37,6 +46,10 @@ class LayoutCanvasController {
       Logger.warn("Tried to remove nonexistent node $node");
       return;
     }
+
+    _connections
+        .where((connection) => connection.connectsTo(node))
+        .forEach(removeConnection);
 
     layout.nodes.remove(node.underlyingNode);
     _nodes.remove(node);
@@ -55,6 +68,44 @@ class LayoutCanvasController {
       _nodes.addAll(nodes);
       _redraw();
     }
+  }
+
+  bool hasConnection(VisualLayoutConnection connection) =>
+      _connections.contains(connection);
+
+  void removeConnection(VisualLayoutConnection connection) {
+    if (!hasConnection(connection)) {
+      Logger.warn("Tried to remove nonexistent connection $connection");
+    }
+
+    _connections.remove(connection);
+    _redraw();
+  }
+
+  VisualLayoutConnection? findConnection(
+      VisualLayoutNode first, VisualLayoutNode second) {
+    if(!hasNode(first) || !hasNode(second)) {
+      Logger.warn("Tried to find a connection between unknown nodes");
+      return null;
+    }
+
+    return connections
+        .firstWhereOrNull((connection) => connection.connectsTo(first, second));
+  }
+
+  VisualLayoutConnection getOrCreateConnection(VisualLayoutNode first, VisualLayoutNode second) {
+    if(!hasNode(first) || !hasNode(second)) {
+      throw ArgumentError("Not all nodes are part of this layout");
+    }
+
+    var connection = findConnection(first, second);
+    if(connection != null) {
+      return connection;
+    }
+
+    connection = VisualLayoutConnection(firstNode: first, secondNode: second);
+    _connections.add(connection);
+    return connection;
   }
 
   void _redraw() => _redrawNotifier.notifyListeners();
