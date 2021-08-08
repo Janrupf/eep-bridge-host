@@ -170,7 +170,8 @@ class _LayoutCanvasPainter extends CustomPainter {
     canvas.translate(controller.pan.dx, controller.pan.dy);
     _drawGrid(canvas, size);
 
-    controller.connections.forEach((connection) => _drawConnection(canvas, connection));
+    controller.connections
+        .forEach((connection) => _drawConnection(canvas, connection));
     controller.nodes.forEach((node) => _drawNode(canvas, node));
 
     canvas.restore();
@@ -399,7 +400,12 @@ class VisualLayoutConnection {
   VisualLayoutNode firstNode;
   VisualLayoutNode secondNode;
 
-  VisualLayoutConnection({required this.firstNode, required this.secondNode});
+  LayoutNodeConnection underlyingConnection;
+
+  VisualLayoutConnection(
+      {required this.firstNode,
+      required this.secondNode,
+      required this.underlyingConnection});
 
   bool connectsTo(VisualLayoutNode first, [VisualLayoutNode? second]) {
     if (second == null) {

@@ -22,8 +22,16 @@ class LayoutCanvasController {
         _pan = Offset(0, 0) {
     _nodes.clear(); // Hot reload fix
     _connections.clear(); // Hot reload fix
+
     _nodes.addAll(
         layout.nodes.map((node) => VisualLayoutNode(underlyingNode: node)));
+
+    _connections
+        .addAll(layout.connections.map((connection) => VisualLayoutConnection(
+              firstNode: visualFromUnderlying(connection.firstNode),
+              secondNode: visualFromUnderlying(connection.secondNode),
+              underlyingConnection: connection,
+            )));
 
     getOrCreateConnection(_nodes[0], _nodes[1]);
   }
@@ -31,6 +39,9 @@ class LayoutCanvasController {
   void addRedrawListener(VoidCallback listener) {
     _redrawNotifier.addListener(listener);
   }
+
+  VisualLayoutNode visualFromUnderlying(LayoutNode node) =>
+      _nodes.firstWhere((v) => v.underlyingNode == node);
 
   List<VisualLayoutNode> get nodes => List.unmodifiable(_nodes);
 
@@ -78,13 +89,14 @@ class LayoutCanvasController {
       Logger.warn("Tried to remove nonexistent connection $connection");
     }
 
+    layout.connections.remove(connection.underlyingConnection);
     _connections.remove(connection);
     _redraw();
   }
 
   VisualLayoutConnection? findConnection(
       VisualLayoutNode first, VisualLayoutNode second) {
-    if(!hasNode(first) || !hasNode(second)) {
+    if (!hasNode(first) || !hasNode(second)) {
       Logger.warn("Tried to find a connection between unknown nodes");
       return null;
     }
@@ -93,17 +105,25 @@ class LayoutCanvasController {
         .firstWhereOrNull((connection) => connection.connectsTo(first, second));
   }
 
-  VisualLayoutConnection getOrCreateConnection(VisualLayoutNode first, VisualLayoutNode second) {
-    if(!hasNode(first) || !hasNode(second)) {
+  VisualLayoutConnection getOrCreateConnection(
+      VisualLayoutNode first, VisualLayoutNode second) {
+    if (!hasNode(first) || !hasNode(second)) {
       throw ArgumentError("Not all nodes are part of this layout");
     }
 
     var connection = findConnection(first, second);
-    if(connection != null) {
+    if (connection != null) {
       return connection;
     }
 
-    connection = VisualLayoutConnection(firstNode: first, secondNode: second);
+    final underlying = LayoutNodeConnection(
+        firstNode: first.underlyingNode,
+        secondNode: second.underlyingNode,
+        attachments: []);
+    layout.connections.add(underlying);
+
+    connection = VisualLayoutConnection(
+        firstNode: first, secondNode: second, underlyingConnection: underlying);
     _connections.add(connection);
     return connection;
   }
