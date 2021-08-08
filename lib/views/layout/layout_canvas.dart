@@ -1,6 +1,7 @@
-import 'dart:math' as math;
+import 'dart:ui';
 
 import 'package:eep_bridge_host/project/layout.dart';
+import 'package:eep_bridge_host/util/simple_vector.dart';
 import 'package:eep_bridge_host/views/layout/layout_canvas_controller.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -242,26 +243,66 @@ class _LayoutCanvasPainter extends CustomPainter {
   }
 
   void _drawConnection(Canvas canvas, LayoutNodeConnection connection) {
-    _drawLineBetweenNodes(canvas, connection.firstNode, connection.secondNode);
+    final vector = SimpleVector.between(
+        connection.firstNode.position, connection.secondNode.position);
+
+    _drawLineBetweenNodes(
+        canvas, connection.firstNode, connection.secondNode, vector);
+    // _drawPointOnLine(canvas, connection.firstNode, vector, vector.length / 2);
+    _drawArrowOnLine(
+        canvas, connection.firstNode, vector, (vector.length / 2) + 20);
   }
 
   void _drawLineBetweenNodes(
-      Canvas canvas, LayoutNode first, LayoutNode second) {
-    var adjustedX = second.position.dx - first.position.dx;
-    var adjustedY = second.position.dy - first.position.dy;
-    final distance = math.sqrt(adjustedX * adjustedX + adjustedY * adjustedY);
+      Canvas canvas, LayoutNode first, LayoutNode second, SimpleVector vector) {
+    final connectionLine = vector.shrink(20);
 
-    if (distance > 0) {
-      adjustedX /= distance;
-      adjustedY /= distance;
+    final start = connectionLine.apply(first.position);
+    final end = connectionLine.applyInverted(second.position);
+    canvas.drawLine(start, end, _paintFor(first, second));
+  }
+
+  void _drawPointOnLine(
+      Canvas canvas, LayoutNode node, SimpleVector vector, double offset) {
+    final SimpleVector drawVector;
+
+    if (vector.length <= offset) {
+      drawVector = SimpleVector(0, 0);
+    } else {
+      drawVector = vector.shrink(offset);
     }
 
-    adjustedX *= distance - 20;
-    adjustedY *= distance - 20;
+    final target = drawVector.apply(node.position);
+    canvas.drawCircle(target, 20, _normalPaint);
+  }
 
-    final firstAdjusted = first.position.translate(adjustedX, adjustedY);
-    final secondAdjusted = second.position.translate(-adjustedX, -adjustedY);
-    canvas.drawLine(secondAdjusted, firstAdjusted, _paintFor(first, second));
+  void _drawArrowOnLine(
+      Canvas canvas, LayoutNode node, SimpleVector vector, double offset) {
+    final SimpleVector drawVector;
+
+    if (vector.length <= offset) {
+      drawVector = SimpleVector(0, 0);
+    } else {
+      drawVector = vector.shrink(offset);
+    }
+
+    final drawPoint = drawVector.apply(node.position);
+
+    canvas.save();
+    canvas.translate(drawPoint.dx, drawPoint.dy);
+    canvas.rotate(drawVector.rotate(RotationValue.degree(90)).rotation.radians);
+
+    _drawIcon(canvas, Icons.traffic, Offset(15, 0), Colors.white, fontSize: 25);
+
+    canvas.drawPath(
+      Path()..moveTo(0, 0)
+      ..lineTo(8, 15)
+      ..lineTo(-8, 15)
+      ..lineTo(0, 0),
+      Paint()..color = Colors.white,
+    );
+
+    canvas.restore();
   }
 
   void _drawNode(Canvas canvas, LayoutNode node) {
@@ -328,13 +369,14 @@ class _LayoutCanvasPainter extends CustomPainter {
     Canvas canvas,
     IconData icon,
     Offset offset,
-    Color color, [
-    Alignment alignment = Alignment.topLeft,
-  ]) {
+    Color color, {
+        Alignment alignment = Alignment.topLeft,
+        double fontSize = 25,
+      }) {
     final span = TextSpan(
       text: String.fromCharCode(icon.codePoint),
       style: _normalTextStyle.copyWith(
-          fontSize: 25, fontFamily: icon.fontFamily, color: color),
+          fontSize: fontSize, fontFamily: icon.fontFamily, color: color),
     );
     final painter = TextPainter(text: span, textDirection: TextDirection.ltr);
 

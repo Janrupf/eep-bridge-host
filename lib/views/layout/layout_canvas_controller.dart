@@ -76,10 +76,10 @@ class LayoutCanvasController {
         _scale = 1,
         _pan = Offset(0, 0) {
 
-    /* final connection = getOrCreateConnection(layout.nodes[0], layout.nodes[1]);
+    final connection = getOrCreateConnection(layout.nodes[0], layout.nodes[1]);
     connection.attachments.clear();
 
-    connection.attachments.add(LayoutNodeConnectionAttachment(distance: 5.0)); */
+    connection.attachments.add(LayoutNodeConnectionAttachment(distance: 5.0));
   }
 
   void addRedrawListener(VoidCallback listener) {
